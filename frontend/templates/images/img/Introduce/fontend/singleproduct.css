@@ -1,0 +1,94 @@
+.singleproduct{
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+.singleproduct #closepitem{
+    border: none;
+    font-size: 25px;
+    transform: translateX(96vw);
+    background-color: white;
+    height: 10%;
+
+   
+}
+.singleproduct #closepitem:hover{
+    color: red;
+}
+.singleproduct h2{
+    text-align: center;
+}
+.pitem{
+    display: flex;
+    
+}
+.pitem img{
+    max-width: 40%;
+    max-height:60%;
+    object-fit: cover;
+}
+.pitem .productcontent{
+    font-family: 'Times New Roman', Times, serif;
+    width: 60%;
+    line-height: 3vw;
+   
+}
+.pitem .productcontent .productname{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 4vw;
+    font-weight: bolder;
+    text-align: center;
+    color:orange
+}
+.pitem .productcontent .price{
+    font-size: 2.5vw;
+    font-weight: bold;
+    transform: translateX(37vw);
+
+}
+.pitem .productcontent .psize,
+.pitem .productcontent .quantity
+{
+    font-size: 1.8vw;
+    font-weight: bold;
+}
+
+
+.pitem .productcontent .psize label{
+    font-weight: 100;
+}
+.pitem .productcontent .des p{
+    font-size: 2vw;
+    font-weight: bold;
+}
+.pitem .productcontent .des{
+    font-size: 1.8vw;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.pitem .productcontent .quantity input[type="number"]{
+    width: 40px;
+    height: 25px;
+    border-radius: 5px;
+    border: 2px solid black;
+    text-align: center;
+}
+
+#addtocart{
+    width: 14vw;
+    height: 3vh;
+    font-size: 1.5vw;
+    transform: translateX(30vw);
+    color:white;
+    background-color: orange;
+    border-radius: 0.8vw;
+    border: 1px solid white;
+    display: flex;
+    text-align: center;
+    padding-top: 0.8vw;
+}
+
+#addtocart:hover{
+    color: black;
+
+}
