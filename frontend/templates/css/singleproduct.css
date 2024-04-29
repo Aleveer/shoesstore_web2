@@ -1,0 +1,453 @@
+.singleproduct{
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    color: white;
+}
+/*Hiệu ứng cho nút thoát khỏi trang sản phẩm*/
+.singleproduct #closepitem{
+    border: none;
+    font-size: 25px;
+    transform: translateX(96vw);
+    background-color: black;
+    height: 10%;
+    color: white;
+
+   
+}
+.singleproduct #closepitem:hover{
+    color: red;
+}
+/*Hiệu ứng cho item*/
+.singleproduct .pitem{
+    display: flex;
+    height: 72vh;
+    padding-top: 10px;
+}
+
+.singleproduct h2{
+    text-align: center;
+}
+
+/*Vùng mô tả sản phẩm*/
+.singleproduct .pitem .productcontent{
+    padding-left: 15px;
+    width: 55vw;
+    height: auto;
+    background-color: black;
+}
+.singleproduct .pitem .productcontent .productname{
+    font-size: 4.5vh;
+    font-weight: bold;
+    text-align: center;
+    color: orange;
+   
+}
+:root {
+	--a:  orange;
+	--b: rgb(253, 52, 52);
+}
+.singleproduct .pitem .productcontent .productname:hover h2{
+    
+    
+	span {
+		display: block;
+		background: linear-gradient(to bottom right, var(--a) 50%, var(--b) 0);
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+        outline: 2px solid lightblue;
+      
+        
+	} 
+}
+
+.singleproduct .pitem .productcontent .price{
+    font-size: 4vh;
+    font-weight: 800;
+    text-align: right;
+    color: rgb(255, 89, 89);
+}
+.singleproduct .pitem .productcontent .des{
+    font-size: 3vh;
+    text-align: left;
+    font-weight: 400;
+}
+.singleproduct .pitem .productcontent .des fieldset{
+    border: 3px solid white;
+    border-radius: 10px;
+}
+.singleproduct .pitem .productcontent .des legend{
+    font-weight: 700;
+    font-size: 3.5vh;
+}
+/*Hiệu ứng cho nút size*/
+.singleproduct .pitem .productcontent .psize{
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-size: 3.5vh;
+    font-weight: bold;
+    display: flex;
+
+}
+.singleproduct .pitem .productcontent .psize .button-container {
+	width: 4vw;
+    height: 4vh;
+    margin-left: 10px;
+}
+.singleproduct .pitem .productcontent .psize button {
+	width: 4vw;
+    height: 4vh;
+    font-weight: bold;
+    background:linear-gradient(90deg,rgb(244, 103, 103),rgb(232, 158, 74), rgb(247, 226, 86));
+	border: 1px solid #c00022;
+	border-radius: 5px;
+	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+	font-size: 2.5vh;
+	text-align: center;
+	color: #fff;
+}
+.singleproduct .pitem .productcontent .psize button:hover {
+	cursor: pointer;
+    background: linear-gradient(180deg,#e85404,#f4be41,#ffeb3b,#f98501);
+    color: black;
+}
+
+
+.button-container:hover .squish-in {
+	animation: squish-in 0.5s forwards;
+}
+@keyframes squish-in {
+	60% {
+		transform: scale(0.5, 1.6);
+		border-radius: 45% 45% 45% 45% / 40% 40% 40% 40%;
+	}
+	70% {
+		transform: scale(1.5, 0.7);
+		border-radius: 15px;
+	}
+	80% {
+		transform: scale(0.9, 1.3);
+		border-radius: 25% 25% 25% 25% / 20% 20% 20% 20%;
+	}
+	85% {
+		transform: scale(1.2, 0.9);
+		border-radius: 15px;
+	}
+	90% {
+		transform: scale(1, 1.1);
+		border-radius: 15px;
+	}
+}
+
+
+.singleproduct .pitem .productcontent .quantity{
+    padding-bottom: 20px;
+    font-size: 3.5vh;
+    font-weight: bold;
+}
+.singleproduct .pitem .productcontent .quantity input{
+    width: 22vw;
+    height: 5vh;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bolder;
+    
+}
+.singleproduct .pitem .productcontent .addtocart{
+    width: 15vw;
+    height: 6vh;
+    font-size: 2.5vh;
+    font-weight: bold;
+    transform: translateX(40vw);
+    border-radius: 10px;
+    background:linear-gradient(90deg,rgb(244, 103, 103),rgb(232, 158, 74), rgb(247, 226, 86));
+    
+    color: white;
+    cursor: pointer;
+    
+}
+
+.singleproduct .pitem .addtocart:hover{
+    background: linear-gradient(90deg,#f06565,#f441a5,#ffeb3b,#03a9f4);
+    background-size: 400%;
+    color:black;
+}
+.singleproduct .pitem .productcontent .addtocart:before{
+    content: '';
+    position: absolute;
+    background: inherit;
+    top:-5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    filter: blur(100px);
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+.singleproduct .pitem .productcontent .addtocart:after{
+    opacity: 1;
+    z-index: -1;
+}
+.singleproduct .pitem .productcontent .addtocart:hover{
+    z-index: 1;
+    animation: glow 8s linear infinite;
+}
+@keyframes glow {
+    0%{
+        background-position: 0%;
+    }
+    100%{
+        background-position: 400%;
+    }
+    
+}
+
+
+/*Tạo hiệu ứng img ở chỗ này nha*/
+.singleproduct .pitem .pimg {
+    border-right: 2px solid white;
+    width: 40vw;
+    height: 75vh;
+    background-color: #fff;
+    color: #ffffff;
+    display: inline-block;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 3vh;
+    margin: 0px 5px;
+    overflow: hidden;
+    position: relative;
+    text-align: left;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    border-radius: 20px;
+  }
+  
+  .singleproduct .pitem .pimg *,
+  .singleproduct .pitem .pimg *:before,
+  .singleproduct .pitem .pimg *:after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition: all 0.45s ease;
+    transition: all 0.45s ease;
+  }
+  
+  .singleproduct .pitem .pimg img {
+    border-radius: 30px;
+    width: 40vw;
+    height: 72vh;
+    object-fit: cover;
+    backface-visibility: hidden;
+    max-width: 100%;
+    vertical-align: top;
+  }
+  
+  .singleproduct .pitem .pimg:before
+  {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    background-color: #bdbff2;
+    opacity: 0.5;
+    -webkit-transition: all 0.45s ease;
+    transition: all 0.45s ease;
+   
+  }
+  .singleproduct .pitem .pimg:after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    background-color: #67a2f5;
+    opacity: 0.5;
+    -webkit-transition: all 0.45s ease;
+    transition: all 0.45s ease;
+  }
+  
+  .singleproduct .pitem .pimg:before {
+    -webkit-transform: skew(30deg) translateX(-80%);
+    transform: skew(30deg) translateX(-80%);
+  }
+  
+  .singleproduct .pitem .pimg:after {
+    -webkit-transform: skew(-30deg) translateX(-70%);
+    transform: skew(-30deg) translateX(-70%);
+  }
+  
+  .singleproduct .pitem .pimg figcaption {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 1;
+    bottom: 0;
+    padding: 25px 40% 25px 20px;
+  }
+  
+  .singleproduct .pitem .pimg figcaption:before,
+  .singleproduct .pitem .pimg figcaption:after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f65858;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    content: '';
+    opacity: 0.5;
+    z-index: -1;
+  }
+  
+  .singleproduct .pitem .pimg figcaption:before {
+    -webkit-transform: skew(30deg) translateX(-100%);
+    transform: skew(30deg) translateX(-100%);
+  }
+  
+  .singleproduct .pitem .pimg figcaption:after {
+    -webkit-transform: skew(-30deg) translateX(-90%);
+    transform: skew(-30deg) translateX(-90%);
+  }
+  
+  .singleproduct .pitem .pimg h3,
+  .singleproduct .pitem .pimg p {
+    margin: 0;
+    opacity: 0;
+    letter-spacing: 1px;
+  }
+  
+  .singleproduct .pitem .pimg h3 {
+    font-family: 'Teko', sans-serif;
+    font-size: 5vh;
+    font-weight: 700;
+    line-height: 1em;
+    text-transform: uppercase;
+    color:red;
+  }
+  
+  .singleproduct .pitem .pimg p {
+    font-size: 3vh;
+  }
+  
+  
+  
+  .singleproduct .pitem .pimg:hover h3,
+  .singleproduct .pitem .pimg.hover h3,
+  .singleproduct .pitem .pimg:hover p,
+  .singleproduct .pitem .pimg.hover p {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    opacity: 0.9;
+    -webkit-transition-delay: 0.2s;
+    transition-delay: 0.2s;
+  }
+  
+  .singleproduct .pitem .pimg:hover:before,
+  .singleproduct .pitem .pimg.hover:before {
+    -webkit-transform: skew(30deg) translateX(-20%);
+    transform: skew(30deg) translateX(-20%);
+    -webkit-transition-delay: 0.05s;
+    transition-delay: 0.05s;
+  }
+  
+  .singleproduct .pitem .pimg:hover:after,
+  .singleproduct .pitem .pimg.hover:after {
+    -webkit-transform: skew(-30deg) translateX(-10%);
+    transform: skew(-30deg) translateX(-10%);
+  }
+  
+  .singleproduct .pitem .pimg:hover figcaption:before,
+  .singleproduct .pitem .pimg.hover figcaption:before {
+    -webkit-transform: skew(30deg) translateX(-40%);
+    transform: skew(30deg) translateX(-40%);
+    -webkit-transition-delay: 0.15s;
+    transition-delay: 0.15s;
+  }
+  
+  .singleproduct .pitem .pimg:hover figcaption:after,
+  .singleproduct .pitem .pimg.hover figcaption:after {
+    -webkit-transform: skew(-30deg) translateX(-30%);
+    transform: skew(-30deg) translateX(-30%);
+    -webkit-transition-delay: 0.1s;
+    transition-delay: 0.1s;
+  }
+  
+
+  
+@media screen  and (max-width:678px){
+    .singleproduct .pitem{
+        display: block;
+        height: auto;
+        width: 100vw;
+        
+    }
+    .singleproduct .pitem .pimg{
+        width: 100vw;
+        height: 40vh;
+        overflow: hidden;
+        
+        border: none;
+    }
+    .singleproduct .pitem .pimg img{
+        width: 100vw;
+        height: 40vh;
+        object-fit: cover;
+        border-radius: 10px;
+       
+    }
+    
+    .singleproduct .pitem .productcontent{
+        padding-top: 5px;
+        width: 100vw;
+    }
+    .singleproduct .pitem .productcontent .productname{
+        font-size: 4vh;
+        font-weight: bold;
+        text-align: center;
+        color: orange;
+    }
+    .singleproduct .pitem .productcontent .price{
+        font-size: 3.5vh;
+        font-weight: 800;
+        text-align: right;
+        color: rgb(255, 89, 89);
+    }
+
+
+    .singleproduct .pitem .productcontent .psize{
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 2.5vh;
+        font-weight: bold;
+    
+    }
+    
+
+    .singleproduct .pitem .productcontent .psize .button-container{
+        width: 7vw;
+        height: 4vh;
+        border-radius: 5px;
+        margin-left: 20px;
+        
+    }
+    .singleproduct .pitem .productcontent .psize .button-container .squish-in{
+        width: 7vw;
+        height: 4vh;
+        text-align: center;
+    }
+
+    .singleproduct .pitem .productcontent .addtocart{
+        width: 50vw;
+        height: 6vh;
+        font-size: 2.5vh;
+        font-weight: bold;
+        transform: translateX(20vw);
+        border-radius: 10px;
+    }
+
+} 

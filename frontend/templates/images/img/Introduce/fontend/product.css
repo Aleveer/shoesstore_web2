@@ -1,0 +1,345 @@
+.con_product{
+    width: 100vw;
+    height: auto;
+    object-fit: cover;
+}
+.con_product h1{
+    text-align: center;
+}
+.sliderimg{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+   
+    
+}
+.sliderimg img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  
+}
+.imgcontent{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20vh;
+    color: whitesmoke;
+    text-align: center;
+   
+   
+}
+.con_product .sliderimg .imgcontent h1{
+    font-size: 15vh;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 1s;
+}
+
+
+.con_product .sliderimg .imgcontent p{
+    font-size: 6vh;
+    font-weight: bold;
+}
+
+.filter{
+    font-size: 1.5vw;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    display: flex;
+    margin-top: 10px;
+}
+
+.filter div:nth-child(1),
+.filter div:nth-child(2){
+    width: 50vw;
+    height: 5vh;
+    text-align: left;
+
+}
+.filter label{
+    font-weight: bold;
+}
+.filter select{
+    width: 15vw;
+    height: 5vh;
+    border: 2px solid black;
+    border-radius: 20px;
+    text-align: center;
+}
+.psearch{
+    margin-top:9px;
+    margin-bottom: 30px;
+    width: 5vh;
+    width: 100vh;
+    font-size: 1.5vh;
+    
+}
+.psearch{
+    display:  flex;
+    width: 100%;
+    height: 5vh;
+}
+.psearch div:nth-child(1){
+    width: 50px;
+    height: 50px;
+    font-size: 35px;
+    text-align: center;
+}
+
+.psearch input[type="text"]{
+    width:95%;
+    height: 5vh;
+    border: 2px solid black;
+    font-size: 20px;
+    text-align: center;
+    border-radius: 25px;
+}
+.area_product{
+    width: 90.6vw;
+    height: 121vh;
+    margin: 0 auto;
+    margin-top: 10px;
+    display: grid;
+    column-gap: 5px;
+    row-gap: 5px;
+    grid-template-columns: 30vw 30vw 30vw;
+    text-align: center;
+    
+}
+.area_product .pitem{
+    width: 30vw;
+    height: 60vh;
+    background-color:white;
+    border: 1px solid black;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+
+.area_product .pitem .content{
+    width: 30vw;
+    height: 20vh;
+}
+/*HIỆU ỨNG ẢNH*/
+.pitem .imgitem {
+    overflow: hidden;
+    width: 30vw;
+    height: 40vh;
+
+}
+.area_product .pitem img{
+    width: 30vw;
+    height: 40vh;
+    object-fit: cover;
+}
+.area_product .pitem .imgitem:hover img{
+}
+
+.area_product .pitem .content .name{
+    font-size: 3.5vh;
+    font-weight: bold;
+}
+.area_product .pitem .content .price{
+    font-size: 3vh;
+    font-weight: bold;
+}
+.area_product .pitem .content .see_product{
+    width: 19vw;
+    height: 50px;
+    font-size: 2.5vh;
+    border-radius: 10px;
+}
+/*HIỆU ỨNG CHO NÚT*/
+.area_product .pitem .content button{
+    position: relative;
+    display: inline-block;
+    color: #03e9f4;
+    font-weight: bold;
+    transition: .5s;
+    overflow: hidden;
+    background-color: black;
+}
+.area_product .pitem .content button:hover{
+    background-color: #03e9f4;
+    color: black;
+    box-shadow: 0 0 5px #03e9f4,
+                0 0 25px #03e9f4,
+                0 0 50px #03e9f4,
+                0 0 200px #03e9f4;
+    -webkit-box-reflect: below 3px linear-gradient(transparent,#0005);
+}
+.area_product .pitem .content button{
+    filter: hue-rotate(225deg);
+}
+.area_product .pitem .content button span{
+    position: absolute;
+    display: block;
+}
+.area_product .pitem .content button span:nth-child(1){
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg,transparent,#03e9f4);
+    animation: animate1 1s infinite;
+}
+@keyframes animate1 {
+    0%{
+        left: -100%;
+    }
+    100%{
+        left: 100%;
+    }
+}
+.area_product .pitem .content button span:nth-child(2){
+    top: -100%;
+    right: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg,transparent,#03e9f4);
+    animation: animate2 1s infinite;
+    animation-delay: .25s;
+}
+
+@keyframes animate2 {
+    0%{
+        top: -100%;
+    }
+    100%{
+        top: 100%;
+    }
+}
+.area_product .pitem .content button span:nth-child(3){
+    bottom:  0;
+    right: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(270deg,transparent,#03e9f4);
+    animation: animate3 1s infinite;
+    animation-delay: .5s;
+}
+@keyframes  animate3{
+    0%{
+        right: -100%;
+    }
+    100%{
+        right: 100%;
+    }
+}
+.area_product .pitem .content button span:nth-child(4){
+    bottom: -100%;
+    left: 0;
+    width: 3px;
+    height:100% ;
+    background: linear-gradient(360deg,transparent,#03e9f4);
+    animation: animate4 1s infinite;
+    animation-delay: .75s;
+}
+@keyframes  animate4{
+    0%{
+        bottom: -100%;
+    }
+    100%{
+        bottom: 100%;
+    }
+}
+/*HIỆU ỨNG CHO IMG*/
+
+
+
+
+
+
+.page{
+    width: 100vw;
+    height: 50px;
+    text-align: center;
+    padding-top: 20px;
+    font-size: 25px;
+    font-weight: bold;
+
+}
+.ppage{
+    width: 40px;
+    height:40px;
+    font-size: 25px;
+    font-weight: 600;
+    border-radius: 10px;
+    background-color: rgb(33, 32, 32);
+    color: white;
+}
+.ppage:hover{
+    background-color: rgb(125, 122, 122);
+}
+@media screen and (max-width:678px) {
+    .area_product{
+        width: 90.6vw;
+        height: auto;
+        margin: 0 auto;
+        margin-top: 10px;
+        display: grid;
+        row-gap: 10px;
+        grid-template-columns: 90vw;
+        text-align: center;
+    }
+    .area_product .pitem{
+        width: 90vw;
+        height: 60vh;
+        background-color:white;
+        border: 1px solid black;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+        
+    .area_product .pitem img{
+        width: 90vw;
+        height: 40vw;
+        object-fit: cover;
+    }
+    .pitem .imgitem {
+        overflow: hidden;
+        width: 90vw;
+        height: 40vh;
+    }
+    .area_product .pitem .content{
+        width: 90vw;
+        height: 20vh;
+    }
+
+    .area_product .pitem .content .name{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    .area_product .pitem .content .price{
+        font-size: 23px;
+        font-weight: bold;
+    }
+    .area_product .pitem .content .see_product{
+        width: 50vw;
+        height: 50px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+    .filter select{
+        width: 30vw;
+        height: 5vh;
+        border: 2px solid black;
+        border-radius: 20px;
+        text-align: center;
+    }
+    .filter label{
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+
+
+    
+}
+

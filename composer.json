@@ -1,0 +1,19 @@
+{
+  "name": "admin/shoes-store",
+  "description": "Composer for managing PHP Package",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "classmap": ["backend/bus", "backend/dao", "backend/models", "backend/services", "backend/interfaces", "backend/enums"]
+  },
+  "require": {
+    "symfony/error-handler": "^7.0",
+    "phpmailer/phpmailer": "^6.9",
+    "twbs/bootstrap": "^5.3"
+  },
+    "config": {
+        "disable-tls": true
+    }
+}

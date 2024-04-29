@@ -1,0 +1,277 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+ol, ul {
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    cursor: pointer; 
+}
+
+table img {
+    width: 60px;
+    height: 60px;
+}
+
+form img {
+    width: 200px;
+    height: 200px;
+}
+
+tr:first-child {
+    border: none;
+}
+tr {
+    border-top: 1px solid black;
+    height: 60px;
+}
+
+tbody tr:first-child {
+    border-top: 1px solid black;
+
+}
+
+#wrapper {
+    margin: 0;
+    padding: 0;
+    /* background-color: ; */
+}
+
+/* CSS phần header và sidebar */
+
+#header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background-color: #004445;
+    border-radius: 5px;
+    z-index: 2;
+}
+
+#header-wrapper {
+    width: 100%;
+    height: 60px;
+    position: relative;
+}
+
+.sidebar-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+    font-size: 1.5em;
+}
+
+.sidebar-btn:hover {
+    color: rgb(152, 152, 152);
+}
+
+
+.sidebar-container {
+    margin: 0;
+    padding: 0 !important;
+}
+
+.siderbar-container a {
+    text-decoration: none;
+    color: black;
+}
+
+.sidebar-item {
+    list-style: none;
+    padding: 20px 20px;
+    font-size: 1.5em;
+    /* cursor: pointer; */
+}
+
+.sidebar-item:hover {
+    color: rgb(255, 255, 255);
+    background-color: black;
+}
+
+.sidebar-item:hover>a{
+    color: white;
+}
+
+#user-logo {
+    width: fit-content;
+    height: fit-content;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    cursor: pointer;
+}
+
+#user-logo i {
+    color: #6fb98f; 
+    font-size: 2.5em;
+
+}
+
+#user-logo i:hover {
+    color: #49ff95;
+}
+
+
+
+
+/* CSS phần content */
+
+#content {
+    margin-top: 70px;
+}
+
+#content-wrapper {
+    width: 100%;
+    margin: 0;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px  solid #000000;
+    /* position: relative; */
+}
+
+#content-wrapper #title {
+    height: 10%;
+}
+#content-wrapper h1 {
+    /* text-align: center; */
+    padding: 10px;
+    font-size: 1.9em;
+}
+.title {
+    background-color: #2c7873;
+    border-radius: 10px 10px 0px 0px;
+    color: #ffffff;
+    position: relative;
+}
+
+.add {
+    position: absolute;
+    border: solid 1px black;
+    border-radius: 20px;
+    width: 110px;
+    height: 40px;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #000000;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+}
+
+.add:hover {
+    color: rgb(255, 255, 255);
+}
+
+
+
+.content-container {
+    overflow: auto;
+    width: 100%;
+    height: 90%;
+}
+
+.table tr {
+    height: 60px;
+    /* margin: 5px 0px; */
+}
+
+
+.product-action {
+    width: 100%;
+    height: 60px;
+    position: relative;
+}
+
+.product-action button {
+    width: 100%;
+    height: 40%;
+    margin: 5% 0%;
+    padding: 0;
+}
+
+.product-action i {
+    width: 20px;
+    font-size: 1.5em;
+}
+
+.product-edit {
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    transform: translateY(-50%);
+    left: 10%;
+    cursor: pointer;
+}
+.product-delete {
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    transform: translateY(-50%);
+    left: 60%;
+    cursor: pointer;
+}
+
+.productImg {
+    position: relative;
+}
+
+.productImg img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: auto;
+}
+
+.userImg {
+    position: relative;
+}
+
+.userImg img {
+    width: 50%;
+    height: auto;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.userAction {
+    width: 100%;
+    height: 60px;
+    position: relative;
+}
+
+.userAction button {
+    width: 100%;
+    height: 40%;
+    margin: 5% 0%;
+    padding: 0;
+}
+
+.search-group {
+    width: 50%;
+
+}
+
+#addSizeModal {
+    background-color: rgba(128, 128, 128, 0.611);
+}
+
+.btn-fixed-height {
+    height: 15px;
+    width: 15px;
+    font-size: smaller;
+    transform: translateY(-20%);
+    text-align: center;
+}
