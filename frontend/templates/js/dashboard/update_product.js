@@ -83,7 +83,7 @@ $(document).ready(function () {
             $.ajax({
                 url: window.location.href,
                 method: "POST",
-                dataType: "html",
+                dataType: "json",
                 data: {
                     productNameEdit: productName.value,
                     categoryEdit: chosenCategory.value,
@@ -94,10 +94,13 @@ $(document).ready(function () {
                     imageEdit: imageProductReview.src,
                     updateEditBtnName: true,
                 },
-                success: function () {
-                    alert("Product updated successfully");
-                    //Once the product has been updated, go back to the dashboard:
-                    window.location.href = "http://localhost/frontend/index.php?module=dashboard&view=product.view";
+                success: function (data) {
+                    if (data.status == "success") {
+                        alert(data.message);
+                        window.location.href = "http://localhost/frontend/index.php?module=dashboard&view=product.view";
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert("Error updating product: " + errorThrown);

@@ -38,7 +38,7 @@ class CouponsBUS implements BUSInterface
         return CouponsDAO::getInstance()->getById($id);
     }
 
-    public function getModelByCode(string $code)
+    public function getModelByCode($code)
     {
         for ($i = 0; $i < count($this->couponsList); $i++) {
             if ($this->couponsList[$i]->getCode() == $code) {

@@ -1,14 +1,5 @@
 <?php
-
-// use services\validation;
-// use services\session;
-// use BUS\UserBUS;
-// use Models\UserModel;
-// use Enums\StatusEnums;
-// use Enums\RolesEnums;
-// use services\PasswordUtilities;
-
-use backend\services\session;
+use backend\bus\RoleBUS;
 use backend\bus\UserBUS;
 use backend\enums\StatusEnums;
 use backend\models\UserModel;
@@ -18,78 +9,95 @@ if (!defined('_CODE')) {
 }
 
 if (isPost()) {
+
     $filterAll = filter();
-    $userModel = new UserModel(
-        null,
-        $filterAll['username'],
-        $filterAll['password'],
-        $filterAll['email'],
-        $filterAll['fullname'],
-        $filterAll['phone'],
-        $filterAll['gender'],
-        null,
-        0,
-        StatusEnums::INACTIVE,
-        $filterAll['address'],
-        null,
-        null,
-        null,
-        null
-    );
-    //TODO: Fix the validate model section at backend:
-    $errors = UserBUS::getInstance()->validateModel($userModel);
-    if ($filterAll['password_confirm'] == null || trim($filterAll['password_confirm']) == "") {
-        $errors['password_confirm']['required'] = 'Password confirm is required!';
-    }
-    if (!($filterAll['password_confirm'] == $filterAll['password'])) {
-        $errors['password_confirm']['comfirm'] = 'Confirm password does not match!';
-    }
-    if (count($errors) <= 0) {
-        $activeToken = sha1(uniqid() . time());
-        $userModel->setPassword(password_hash($filterAll['password'], PASSWORD_DEFAULT));
-        $userModel->setCreateAt(date("Y-m-d H:i:s"));
-        $userModel->setActiveToken($activeToken);
-        $insertStatus = UserBUS::getInstance()->addModel($userModel);
-        if ($insertStatus) {
-            $_SESSION['registerUserId'] = $insertStatus;
-            // Tạo link kích hoạt
-            $linkActive = _WEB_HOST . '?module=auth&action=active&token=' . $activeToken;
-            // Thiết lập gửi mail
-            $subject = $filterAll['fullname'] . ' vui lòng kích hoạt tài khoản!!!';
-            $content = 'Chào ' . $filterAll['fullname'] . '<br/>';
-            $content .= 'Vui lòng click vào đường link dưới đây để kích hoạt tài khoản:' . '<br/>';
-            $content .= $linkActive . '<br/>';
-            $content .= 'Trân trọng cảm ơn!!';
-
-
-            // Tiến hành gửi mail
-            $sendMailStatus = sendMail($filterAll['email'], $subject, $content);
-
-            if ($sendMailStatus) {
-                session::getInstance()->setFlashData('msg', 'Đăng kí thành công, vui lòng kiểm tra email để kích hoạt tài khoản!');
-                session::getInstance()->setFlashData('msg_type', 'success');
-            } else {
-                session::getInstance()->setFlashData('msg', 'Hệ thống đang gặp sự cố, vui lòng thử lại sau');
-                session::getInstance()->setFlashData('msg_type', 'danger');
-            }
+    if (isset($_POST['registerBtn'])) {
+        error_log('Register button clicked!');
+        //Check email and phone number already taken:
+        $emailCheck = UserBUS::getInstance()->getModelByEmail($filterAll['email']);
+        $phoneCheck = UserBUS::getInstance()->getModelByPhone($filterAll['phone']);
+        if ($emailCheck) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Email already exists!']);
+            exit;
         }
-        redirect('?module=auth&action=register');
-    } else {
-        session::getInstance()->setFlashData('msg', 'Vui lòng kiểm tra lại dữ liệu!');
-        session::getInstance()->setFlashData('msg_type', 'danger');
-        session::getInstance()->setFlashData('errors', $errors);
-        session::getInstance()->setFlashData('duLieuDaNhap', $filterAll);
-        redirect('?module=auth&action=register');
+
+        if ($phoneCheck) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Phone number already exists!']);
+            exit;
+        }
+
+        $userModel = new UserModel(
+            null,
+            $filterAll['username'],
+            $filterAll['password'],
+            $filterAll['email'],
+            $filterAll['fullname'],
+            $filterAll['phone'],
+            $filterAll['gender'],
+            null,
+            RoleBUS::getInstance()->getModelById(4)->getId(),
+            StatusEnums::INACTIVE,
+            $filterAll['address'],
+            null,
+            null,
+            null,
+            null
+        );
+        //TODO: Fix the validate model section at backend: there may be errors
+        $errors = UserBUS::getInstance()->validateModel($userModel);
+        error_log('Errors: ' . json_encode($errors));
+        if ($filterAll['password_confirm'] == null || trim($filterAll['password_confirm']) == "") {
+            $errors['password_confirm']['required'] = 'Password confirm is required!';
+        }
+        if (!($filterAll['password_confirm'] == $filterAll['password'])) {
+            $errors['password_confirm']['comfirm'] = 'Confirm password does not match!';
+        }
+        if (count($errors) <= 0) {
+            $activeToken = sha1(uniqid() . time());
+            $userModel->setPassword(password_hash($filterAll['password'], PASSWORD_DEFAULT));
+            $userModel->setCreateAt(date("Y-m-d H:i:s"));
+            $userModel->setActiveToken($activeToken);
+            $insertStatus = UserBUS::getInstance()->addModel($userModel);
+            if ($insertStatus) {
+                $_SESSION['registerUserId'] = $insertStatus;
+                // Tạo link kích hoạt
+                $linkActive = _WEB_HOST . '?module=auth&action=active&token=' . $activeToken;
+                // Thiết lập gửi mail
+                $subject = $filterAll['fullname'] . ' please active your account!!!';
+                $content = 'Chào ' . $filterAll['fullname'] . '<br/>';
+                $content .= 'Please click on this link below here to activate your account:' . '<br/>';
+                $content .= $linkActive . '<br/>';
+                $content .= 'Thank you so much!!';
+
+                // Tiến hành gửi mail
+                $sendMailStatus = sendMail($filterAll['email'], $subject, $content);
+
+                if ($sendMailStatus) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['status' => 'success', 'message' => 'Successfully registered, please check your email to activate your account!']);
+                    exit;
+                } else {
+                    header('Content-Type: application/json');
+                    echo json_encode(['status' => 'error', 'message' => 'The system is having problems, please try again later!']);
+                    exit;
+                }
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'The system is having problems, please try again later!']);
+                exit;
+            }
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Please check the data', 'errors' => $errors]);
+            exit;
+        }
     }
 }
 
-$msg = session::getInstance()->getFlashData('msg');
-$msg_type = session::getInstance()->getFlashData('msg_type');
-$errors = session::getInstance()->getFlashData('errors');
-$duLieuDaNhap = session::getInstance()->getFlashData('duLieuDaNhap');
-
 $data = [
-    'pageTitle' => 'Đăng ký'
+    'pageTitle' => 'Register'
 ];
 ?>
 
@@ -101,81 +109,63 @@ $data = [
     <div class="row">
         <div class="col-4" style="margin: 24px auto;">
             <form class="cw" action="" method="post">
-                <h2 style="text-align:center; text-transform: uppercase;">Register</h2>
-                <?php if (!empty($msg)) {
-                    getMsg($msg, $msg_type);
-                } ?>
+                <h2 class="header_register" style="text-align:center; text-transform: uppercase;">Register</h2>
                 <div class="form-group mg-form mt-3">
                     <label for="">Full name</label>
-                    <input name="fullname" class="form-control" type="text" placeholder="Your full name..."
-                        value="<?php echo formOldInfor('fullname', $duLieuDaNhap) ?>">
-                    <?php echo formError('fullname', $errors) ?>
+                    <input name="fullname" class="form-control" type="text" placeholder="Your full name...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Username</label>
-                    <input name="username" class="form-control" type="text" placeholder="Your username..."
-                        value="<?php echo formOldInfor('username', $duLieuDaNhap) ?>">
-                    <?php echo formError('username', $errors) ?>
+                    <input name="username" class="form-control" type="text" placeholder="Your username...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Email</label>
-                    <input name="email" class="form-control" type="text" placeholder="Your email..."
-                        value="<?php echo formOldInfor('email', $duLieuDaNhap) ?>">
-                    <?php echo formError('email', $errors) ?>
+                    <input name="email" class="form-control" type="text" placeholder="Your email...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Phone number</label>
-                    <input name="phone" class="form-control" type="number" placeholder="Your phone number... (optional)"
-                        value="<?php echo formOldInfor('phone', $duLieuDaNhap) ?>">
-                    <?php echo formError('phone', $errors) ?>
+                    <input name="phone" class="form-control" type="number" placeholder="Your phone number...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Address</label>
-                    <input name="address" class="form-control" type="text" placeholder="Your address..."
-                        value="<?php echo formOldInfor('address', $duLieuDaNhap) ?>">
-                    <?php echo formError('address', $errors) ?>
+                    <input name="address" class="form-control" type="text" placeholder="Your address...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Password</label>
-                    <input name="password" class="form-control" type="password" placeholder="Your password..."
-                        value="<?php echo formOldInfor('password', $duLieuDaNhap) ?>">
-                    <?php echo formError('password', $errors) ?>
+                    <input name="password" class="form-control" type="password" placeholder="Your password...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Re-type password</label>
                     <input name="password_confirm" class="form-control" type="password"
-                        placeholder="Re-type your password..."
-                        value="<?php echo formOldInfor('password_confirm', $duLieuDaNhap) ?>">
-                    <?php echo formError('password_confirm', $errors) ?>
+                        placeholder="Re-type your password...">
                 </div>
 
                 <div class="form-group mg-form mt-3">
                     <label for="">Gender</label>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="male" <?php echo (formOldInfor('gender', $duLieuDaNhap) == 'male') ? 'checked' : ''; ?>>
+                        <input class="form-check-input" type="radio" name="gender" value="male">
                         <label class="form-check-label" for="gender-male">Male</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="gender" value="female" <?php echo (formOldInfor('gender', $duLieuDaNhap) == 'female') ? 'checked' : ''; ?>>
+                        <input class="form-check-input" type="radio" name="gender" value="female">
                         <label class="form-check-label" for="gender-female">Female</label>
                     </div>
-                    <?php echo formError('gender', $errors) ?>
+                </div>
 
-                    <button type="submit" class="btn btn-primary btn-block mg-form"
-                        style="width:100%; margin-top:16px;">Register</button>
-                    <hr>
-                    <p class="text-center"><a href="?module=auth&action=login">Already have an account? Log in here</a></p>
+                <button id="registerBtn" name="registerBtn" type="button" class="btn btn-primary btn-block mg-form"
+                    style="width:100%; margin-top:16px;">Register</button>
+                <hr>
+                <p class="text-center"><a href="?module=auth&action=login">Already have an account? Log
+                        in here</a></p>
             </form>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="<?php echo _WEB_HOST_TEMPLATE ?>/js/register_handling.js"></script>
 </body>
-
-<div id="footer">
-    <?php layouts('footer'); ?>
-</div>

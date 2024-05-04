@@ -7,14 +7,18 @@ $(document).ready(function () {
             $.ajax({
                 url: 'http://localhost/frontend/index.php?module=dashboard&view=coupon.view',
                 method: 'POST',
-                dataType: 'html',
+                dataType: 'json',
                 data: {
                     couponId: couponId,
                     deleteCouponBtn: true,
                 },
-                success: function () {
-                    alert('Coupon deleted successfully');
-                    window.location.reload();
+                success: function (data) {
+                    if (data.status == "success") {
+                        alert(data.message);
+                        window.location.reload();
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log('Delete request failed');

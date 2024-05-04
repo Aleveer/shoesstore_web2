@@ -1,10 +1,6 @@
 <?php
 
 use backend\bus\UserBUS;
-use backend\bus\UserPermissionBUS;
-use backend\bus\PermissionBUS;
-use backend\bus\RoleBUS;
-use backend\bus\RolePermissionBUS;
 use backend\bus\TokenLoginBUS;
 use backend\services\PasswordUtilities;
 use backend\services\session;
@@ -16,17 +12,11 @@ if (!defined('_CODE')) {
 }
 
 $data = [
-    'pageTitle' => 'Đăng nhập'
+    'pageTitle' => 'Sign in'
 ];
-
-if (isLogin()) {
-    redirect('?module=indexphp&action=userhomepage');
-}
 
 if (isPost()) {
     $filterAll = filter();
-    $response = ['success' => false, 'msg' => ''];
-
     if (!empty(trim($filterAll['email'])) && !empty(trim($filterAll['password']))) {
         $email = $filterAll['email'];
         $password = $filterAll['password'];
@@ -43,38 +33,42 @@ if (isPost()) {
 
                 if ($insertTokenLoginStatus) {
                     $status = $userQuery->getStatus();
-                    error_log('User status before update: ' . $status);
                     if ($status === StatusEnums::INACTIVE || $status === StatusEnums::ACTIVE) {
                         $userQuery->setStatus(StatusEnums::ACTIVE);
                         UserBUS::getInstance()->updateModel($userQuery);
                         UserBUS::getInstance()->refreshData();
-                        error_log('User status updated to active');
+                    } else {
+                        header('Content-Type: application/json');
+                        echo json_encode(['status' => 'error', 'message' => 'Your account has been banned! Please contact administrator!']);
+                        exit;
                     }
                     session::getInstance()->setSession('tokenLogin', $tokenLogin);
-                    redirect('?module=indexphp&action=userhomepage');
+                    // Trả về dữ liệu JSON
+                    header('Content-Type: application/json');
+                    echo json_encode(['status' => 'success', 'message' => 'Login successful']);
+                    exit;
                 } else {
-                    session::getInstance()->setFlashData('msg', 'Cannot login! Please try again!');
-                    session::getInstance()->setFlashData('msg_type', 'danger');
+                    header('Content-Type: application/json');
+                    echo json_encode(['status' => 'error', 'message' => 'Cannot login! Please try again!']);
+                    exit;
                 }
             } else {
-                session::getInstance()->setFlashData('msg', 'Incorrect password!');
-                session::getInstance()->setFlashData('msg_type', 'danger');
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'Wrong password, Please try again!']);
+                exit;
             }
         } else {
-            session::getInstance()->setFlashData('msg', 'Email does not exist!');
-            session::getInstance()->setFlashData('msg_type', 'danger');
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Email does not exist!']);
+            exit;
         }
     } else {
-        session::getInstance()->setFlashData('msg', 'Please fill in all fields!');
-        session::getInstance()->setFlashData('msg_type', 'danger');
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'error', 'message' => 'Please fill in all fields!']);
+        exit;
     }
-    // redirect('?module=auth&action=login');
 }
-//header('Content-Type: application/json');
-//echo json_encode($response);
 
-$msg = session::getInstance()->getFlashData('msg');
-$msgType = session::getInstance()->getFlashData('msg_type');
 ?>
 
 <div id="header">
@@ -85,9 +79,7 @@ $msgType = session::getInstance()->getFlashData('msg_type');
     <div class="row">
         <div class="col-4" style="margin:50px auto;">
             <h2 class="cw" style="text-align: center; text-transform: uppercase;">Login</h2>
-            <?php if (!empty($msg)) {
-                getMsg($msg, $msgType);
-            } ?>
+            <div class="message"></div>
             <form action="" method="post">
                 <div class="form-group mg-form">
                     <label class="cw" for="">Email</label>
@@ -98,7 +90,7 @@ $msgType = session::getInstance()->getFlashData('msg_type');
                     <input name="password" type="password" class="form-control" placeholder="Your password...">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block mg-form"
+                <button id="loginBtn" type="button" class="btn btn-primary btn-block mg-form"
                     style="width:100%; margin-top:16px;">Login</button>
                 <hr>
                 <p class="text-center"><a href="?module=auth&action=forgot">Forgot password?</a></p>
@@ -106,4 +98,6 @@ $msgType = session::getInstance()->getFlashData('msg_type');
             </form>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="<?php echo _WEB_HOST_TEMPLATE ?>/js/login_handling.js"></script>
 </body>

@@ -12,20 +12,22 @@ $(document).ready(function () {
             }
 
             $.ajax({
-                url: window.location.href,
+                url: 'http://localhost/frontend/index.php?module=dashboard&view=product.view',
                 method: 'POST',
-                dataType: 'html',
+                dataType: 'json',
                 data: {
                     productId: productId,
                     deleteButton: true,
                 },
-                success: function (response) {
-                    console.log('Delete request successful');
-                    alert('Product hidden successfully');
+                success: function (data) {
+                    if (data.status == "success") {
+                        alert(data.message);
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
-                error: function (xhr, status, error) {
-                    console.log('Delete request failed');
-                    // Handle the error response here
+                error: function (error) {
+                    console.log('Error: ' + error);
                 }
             });
         });
@@ -36,27 +38,27 @@ $(document).ready(function () {
         button.addEventListener('click', function () {
             let productId = $(this).closest('tr').children('td:nth-child(2)').text();
             if (confirm('Product will be deleted permanently. This action cannot be undone. Proceed with caution! Proceed?')) {
-                // Proceed with the delete operation
                 $.ajax({
-                    url: window.location.href,
+                    url: 'http://localhost/frontend/index.php?module=dashboard&view=product.view',
                     method: 'POST',
-                    dataType: 'html',
+                    dataType: 'json',
                     data: {
                         productId: productId,
                         completelyDeleteProduct: true,
                     },
-                    success: function (response) {
-
+                    success: function (data) {
+                        if (data.status == "success") {
+                            alert(data.message);
+                            window.location.reload();
+                        } else if (data.status == "error") {
+                            alert(data.message);
+                        }
                     },
-                    error: function (xhr, status, error) {
-                        console.log('Completely delete request failed');
-                        // Handle the error response here
+                    error: function (error) {
+                        console.log('Error: ' + error);
                     }
                 });
-            } else {
-                // Cancel the delete operation
             }
-
         });
     });
 });

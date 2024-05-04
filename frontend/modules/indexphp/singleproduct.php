@@ -1,4 +1,5 @@
 <?php
+ob_start();
 use backend\bus\ProductBUS;
 use backend\bus\SizeBUS;
 use backend\bus\SizeItemsBUS;
@@ -62,6 +63,7 @@ if (isLogin()) {
     </script>
 </div>
 
+
 <body>
     <div class="singleproduct">
         <button id="closepitem">
@@ -70,7 +72,7 @@ if (isLogin()) {
             </a>
         </button>
         <hr>
-        <h2>Chi Tiết Sản Phẩm</h2>
+        <h2>Product Detail</h2>
         <hr>
         <div class="pitem">
             <figure class="pimg">
@@ -102,11 +104,22 @@ if (isLogin()) {
                     Size:
                     <?php
                     $check = 0;
+                    $sizes = [];
                     foreach ($sizeItemsProduct as $s) {
                         if ($s->getQuantity() > 0) {
-                            echo '<div class="button-container"><button id="sizeItemProduct" class="squish-in" name="sizeItem" data-quantity="' . $s->getQuantity() . '">' . $s->getSizeId() . '</button></div>';
-                            $check = 1;
+                            $sizeModel = SizeBUS::getInstance()->getModelById($s->getSizeId());
+                            $sizeId = $sizeModel->getId();
+                            $sizeName = preg_replace('/[^0-9]/', '', $sizeModel->getName());
+                            $sizes[$sizeId] = ['name' => $sizeName, 'quantity' => $s->getQuantity()];
                         }
+                    }
+
+                    // Sort sizes from small to large
+                    ksort($sizes);
+
+                    foreach ($sizes as $sizeId => $sizeData) {
+                        echo '<div class="button-container"><button id="sizeItemProduct_' . $sizeId . '" class="squish-in" name="sizeItem" data-quantity="' . $sizeData['quantity'] . '">' . $sizeData['name'] . '</button></div>';
+                        $check = 1;
                     }
                     if ($check == 0) {
                         echo 'This product is out of stock!';
@@ -146,26 +159,16 @@ if (isLogin()) {
                         if (isset($_POST['addtocart'])) {
                             switch ($userModel->getStatus()) {
                                 case StatusEnums::BANNED:
-                                    $data = array(
-                                        'status' => 'error',
-                                        'message' => 'Your account has been banned. You cannot perform this action'
-                                    );
-                                    echo json_encode($data);
-                                    error_log(json_encode($data));
-                                    exit();
-
+                                    ob_end_clean();
+                                    return jsonResponse('error', 'Your account has been banned. You cannot perform this action');
                                 case StatusEnums::INACTIVE:
-                                    $data = array(
-                                        'status' => 'error',
-                                        'message' => 'Your account has not been activated. Please log in again to activate your account'
-                                    );
-                                    echo json_encode($data);
                                     $userModel->setStatus(StatusEnums::INACTIVE);
                                     UserBUS::getInstance()->updateModel($userModel);
                                     TokenLoginBUS::getInstance()->deleteModel($tokenModel);
                                     session::getInstance()->removeSession('tokenLogin');
-                                    redirect('?module=auth&action=login');
-                                    exit();
+                                    ob_end_clean();
+                                    return jsonResponse('error', 'Your account has not been activated. Please log in again to activate your account');
+                                // redirect('?module=auth&action=login');
                             }
 
                             $filterAll = filter();
@@ -176,24 +179,14 @@ if (isLogin()) {
                             if ($cartItem != null) {
                                 $sizeItem = SizeItemsBUS::getInstance()->getModelBySizeIdAndProductId($sizeId, $product->getId());
                                 if ($cartItem->getQuantity() + $quantity > $sizeItem->getQuantity()) {
-                                    $data = array(
-                                        'status' => 'error',
-                                        'message' => 'The quantity of the product in the cart can\'t exceeds the remaining quantity of the product'
-                                    );
-                                    echo json_encode($data);
-                                    error_log(json_encode($data));
-                                    return;
+                                    ob_end_clean();
+                                    return jsonResponse('error', 'The quantity of the product in the cart can\'t exceeds the remaining quantity of the product');
                                 } else if ($cartItem->getQuantity() + $quantity <= $sizeItem->getQuantity()) {
-                                    $data = array(
-                                        'status' => 'success',
-                                        'message' => 'The product is already in your cart, the quantity of the product has been updated'
-                                    );
                                     $cartItem->setQuantity($cartItem->getQuantity() + $quantity);
                                     CartsBUS::getInstance()->updateModel($cartItem);
                                     CartsBUS::getInstance()->refreshData();
-                                    echo json_encode($data);
-                                    error_log(json_encode($data));
-                                    return;
+                                    ob_end_clean();
+                                    return jsonResponse('success', 'The product is already in your cart, the quantity of the product has been updated');
                                 }
                             } else if ($cartItem == null) {
                                 $cart = new CartsModel(null, null, null, null, null);
@@ -203,19 +196,21 @@ if (isLogin()) {
 
                                 //Check if the quantity is greater than the quantity of the product:
                                 $sizeItems = SizeItemsBUS::getInstance()->getModelBySizeIdAndProductId($sizeId, $product->getId());
+                                if ($sizeItems == null) {
+                                    ob_end_clean();
+                                    return jsonResponse('error', 'This size is not available for this product');
+                                }
                                 if ($quantity > $sizeItems->getQuantity()) {
                                     $cart->setQuantity($sizeItems->getQuantity());
+                                    ob_end_clean();
+                                    return jsonResponse('error', 'The quantity of the product can\'t exceeds the remaining quantity of the product.');
                                 } else {
                                     $cart->setQuantity($quantity);
                                 }
                                 CartsBUS::getInstance()->addModel($cart);
                                 CartsBUS::getInstance()->refreshData();
-                                $data = array(
-                                    'status' => 'success',
-                                    'message' => 'Added product to cart successfully'
-                                );
-                                error_log(json_encode($data));
-                                echo json_encode($data);
+                                ob_end_clean();
+                                return jsonResponse('success', 'Added product to cart successfully');
                             }
                         }
                     }

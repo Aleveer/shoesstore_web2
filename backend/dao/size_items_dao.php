@@ -117,9 +117,6 @@ class SizeItemsDAO implements DAOInterface
             $sizeItemModel = $this->createSizeItemModel($row);
             array_push($sizeItemList, $sizeItemModel);
         }
-        if (count($sizeItemList) === 0) {
-            throw new Exception("No records found for the given condition: " . $condition);
-        }
         return $sizeItemList;
     }
 }

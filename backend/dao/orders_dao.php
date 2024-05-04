@@ -2,10 +2,10 @@
 
 namespace backend\dao;
 
-use Exception;
+use backend\models\StatisticModel;
+use backend\models\OrdersModel;
 use backend\interfaces\DAOInterface;
 use InvalidArgumentException;
-use backend\models\OrdersModel;
 use backend\services\DatabaseConnection;
 
 class OrdersDAO implements DAOInterface
@@ -136,9 +136,124 @@ class OrdersDAO implements DAOInterface
             $ordersModel = $this->createOrdersModel($row);
             array_push($ordersList, $ordersModel);
         }
-        if (count($ordersList) === 0) {
-            throw new Exception("No records found for the given condition: " . $condition);
-        }
         return $ordersList;
+    }
+
+    public function getAllThongKe(): array
+    {
+        $thongKeList = [];
+        $query = "SELECT
+        u.id AS user_id,
+        u.name AS customer_name,
+        SUM(o.total_amount) AS total_purchase_amount
+        FROM
+            users u
+        JOIN
+            orders o ON u.id = o.user_id
+        GROUP BY
+            u.id, u.name
+        ORDER BY
+            total_purchase_amount DESC
+        LIMIT 5;";
+        $rs = DatabaseConnection::executeQuery($query);
+        while ($row = $rs->fetch_assoc()) {
+            $userId = $row['user_id'];
+            $customerName = $row['customer_name'];
+            $totalPurchaseAmount = $row['total_purchase_amount'];
+            $thongKeModel = new StatisticModel($userId, $customerName, $totalPurchaseAmount);
+            array_push($thongKeList, $thongKeModel);
+        }
+        return $thongKeList;
+    }
+
+    public function getByNgayTuNgayDen($ngayTu, $ngayDen): array
+    {
+        $thongKeList = [];
+        $query = "SELECT
+        u.id AS user_id,
+        u.name AS customer_name,
+        SUM(o.total_amount) AS total_purchase_amount
+        FROM
+            users u
+        JOIN
+            orders o ON u.id = o.user_id
+        WHERE
+            o.order_date BETWEEN ? AND ?
+        GROUP BY
+            u.id, u.name
+        ORDER BY
+            total_purchase_amount DESC
+        LIMIT 5;";
+        $args = [
+            $ngayTu,
+            $ngayDen
+        ];
+        $rs = DatabaseConnection::executeQuery($query, ...$args);
+        while ($row = $rs->fetch_assoc()) {
+            $userId = $row['user_id'];
+            $customerName = $row['customer_name'];
+            $totalPurchaseAmount = $row['total_purchase_amount'];
+            $thongKeModel = new StatisticModel($userId, $customerName, $totalPurchaseAmount);
+            array_push($thongKeList, $thongKeModel);
+        }
+        return $thongKeList;
+    }
+
+    public function getByNgayTu($ngayTu)
+    {
+        $thongKeList = [];
+        $query = "SELECT
+        u.id AS user_id,
+        u.name AS customer_name,
+        SUM(o.total_amount) AS total_purchase_amount
+        FROM
+            users u
+        JOIN
+            orders o ON u.id = o.user_id
+        WHERE
+            o.order_date >= ?
+        GROUP BY
+            u.id, u.name
+        ORDER BY
+            total_purchase_amount DESC
+        LIMIT 5;";
+        $rs = DatabaseConnection::executeQuery($query, $ngayTu);
+        while ($row = $rs->fetch_assoc()) {
+            $userId = $row['user_id'];
+            $customerName = $row['customer_name'];
+            $totalPurchaseAmount = $row['total_purchase_amount'];
+            $thongKeModel = new StatisticModel($userId, $customerName, $totalPurchaseAmount);
+            array_push($thongKeList, $thongKeModel);
+        }
+        return $thongKeList;
+    }
+
+    public function getByNgayDen($ngayDen)
+    {
+        $thongKeList = [];
+        $query = "SELECT
+        u.id AS user_id,
+        u.name AS customer_name,
+        SUM(o.total_amount) AS total_purchase_amount
+        FROM
+            users u
+        JOIN
+            orders o ON u.id = o.user_id
+        WHERE
+            o.order_date <= ?
+        GROUP BY
+            u.id, u.name
+        ORDER BY
+            total_purchase_amount DESC
+        LIMIT 5;";
+        $rs = DatabaseConnection::executeQuery($query, $ngayDen);
+        while ($row = $rs->fetch_assoc()) {
+            $userId = $row['user_id'];
+            $customerName = $row['customer_name'];
+            $totalPurchaseAmount = $row['total_purchase_amount'];
+            $thongKeModel = new StatisticModel($userId, $customerName, $totalPurchaseAmount);
+            array_push($thongKeList, $thongKeModel);
+        }
+        return $thongKeList;
     }
 }

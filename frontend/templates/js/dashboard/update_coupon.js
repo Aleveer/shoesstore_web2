@@ -60,7 +60,7 @@ $(document).ready(function () {
         $.ajax({
             url: 'http://localhost/frontend/index.php?module=dashboard&view=coupon.view',
             method: 'POST',
-            datatype: 'html',
+            datatype: 'json',
             data: {
                 id: couponId,
                 code: couponCode.val(),
@@ -70,11 +70,12 @@ $(document).ready(function () {
                 expiry: couponExpiry.val(),
                 editButtonName: true,
             },
-            success: function (response) {
-                window.location.reload();
-                if (response === 'success') {
-                    alert('Coupon updated successfully');
-                    location.reload();
+            success: function (data) {
+                if (data.status == "success") {
+                    alert(data.message);
+                    window.location.reload();
+                } else if (data.status == "error") {
+                    alert(data.message);
                 }
             },
             error: function (xhr, status, error) {

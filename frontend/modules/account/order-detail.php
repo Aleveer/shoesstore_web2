@@ -16,6 +16,13 @@ requireLogin();
 $token = session::getInstance()->getSession('tokenLogin');
 $tokenModel = TokenLoginBUS::getInstance()->getModelByToken($token);
 $userModel = UserBUS::getInstance()->getModelById($tokenModel->getUserId());
+//Only customer can access this page:
+if ($userModel->getRoleId() != 4) {
+    //Echo a message then redirect to the user's homepage
+    echo '<script>alert("You are not authorized to access this page!")</script>';
+    redirect('?module=indexphp&action=userhomepage');
+}
+
 $order = OrdersBUS::getInstance()->getModelById($orderId);
 
 if ($order->getUserId() != $userModel->getId() && $userModel->getRoleId() == RolesEnums::CUSTOMER) {

@@ -1,9 +1,7 @@
 <?php
+ob_start();
 use backend\bus\UserBUS;
 use backend\bus\OrdersBUS;
-use backend\bus\OrderItemsBUS;
-use backend\bus\ProductsBUS;
-use backend\bus\CategoriesBUS;
 use backend\bus\TokenLoginBUS;
 use backend\services\PasswordUtilities;
 use backend\services\session;
@@ -14,6 +12,14 @@ requireLogin();
 $token = session::getInstance()->getSession('tokenLogin');
 $tokenModel = TokenLoginBUS::getInstance()->getModelByToken($token);
 $userModel = UserBUS::getInstance()->getModelById($tokenModel->getUserId());
+
+//Only customer can access this page:
+if ($userModel->getRoleId() != 4) {
+    //Echo a message then redirect to the user's homepage
+    echo '<script>alert("You are not authorized to access this page!")</script>';
+    redirect('?module=indexphp&action=userhomepage');
+}
+
 $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->getId());
 //$orderItemsListBasedOnOrderFromUser = OrderItemsBUS::getInstance()->getAllModels();
 ?>
@@ -120,6 +126,7 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                 </div>
                             </div>
                             <?php
+                            //TODO: Notification not working:
                             if (isPost()) {
                                 if (isset($_POST['resetButton'])) {
                                     // Convert the gender to a number: 0 for male, 1 for female
@@ -159,7 +166,7 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                         $userModel->setName($accountName);
                                     }
 
-                                    if ($mailAccount != $userModel->getEmail() && $mailAccount != "" && !$userBUS->isEmailTaken($mailAccount) && validation::isValidEmail($mailAccount)) {
+                                    if ($mailAccount != $userModel->getEmail() && $mailAccount != "" && !$userBUS->isEmailTaken($mailAccount, $userModel->getId()) && validation::isValidEmail($mailAccount)) {
                                         $userModel->setEmail($mailAccount);
                                     }
 
@@ -170,7 +177,8 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                     // Save the updated user model
                                     $userBUS->updateModel($userModel);
                                     $userBUS->refreshData();
-                                    echo '<script>alert("Apply changes successfully!")</script>';
+                                    ob_end_clean();
+                                    return jsonResponse('success', 'Apply changes successfully!');
                                 }
                             }
                             ?>
@@ -212,14 +220,12 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                         if (!PasswordUtilities::getInstance()->verifyPassword($currentPassword, $passwordHash)) {
                                             error_log("Current password is incorrect!");
                                             //echo '<script>alert("Current password is incorrect!")</script>';
-                                            echo json_encode(['success' => false, 'message' => 'Current password is incorrect!']);
-                                            return;
+                                            return jsonResponse('error', 'Current password is incorrect!');
                                         }
 
                                         if ($newPassword != $repeatNewPassword) {
                                             error_log("New passwords do not match!");
-                                            echo '<script>alert("New passwords do not match!")</script>';
-                                            return;
+                                            return jsonResponse('error', 'New passwords do not match!');
                                         }
 
                                         $newPasswordHash = PasswordUtilities::getInstance()->hashPassword($newPassword);
@@ -231,15 +237,13 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
 
                                         if (!$result) {
                                             error_log("Failed to change password!");
-                                            //echo '<script>alert("Failed to change password!")</script>';
-                                            echo json_encode(['success' => false, 'message' => 'Failed to change password!']);
-                                            return;
+                                            return jsonResponse('error', 'Failed to change password!');
                                         }
 
                                         $userBUS->refreshData();
                                         error_log("Changed password successfully!");
-                                        echo json_encode(['success' => true, 'message' => 'Changed password successfully!']);
                                         echo '<script>location.reload();</script>';
+                                        return jsonResponse('success', 'Changed password successfully!');
                                     }
                                 }
                                 ?>
@@ -272,15 +276,15 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                         $userBUS = UserBUS::getInstance();
 
                                         if ($phone != $userModel->getPhone()) {
-                                            if (UserBUS::getInstance()->isPhoneTaken($phone)) {
+                                            if (UserBUS::getInstance()->isPhoneTaken($phone, $userModel->getId())) {
                                                 error_log("Phone number is already taken!");
-                                                echo '<script>alert("Phone number is already taken!")</script>';
+                                                return jsonResponse('error', 'Phone number is already taken!');
                                             } else {
                                                 if (validation::isValidPhoneNumber($phone)) {
                                                     $userModel->setPhone($phone);
                                                 } else {
                                                     error_log("Invalid phone number!");
-                                                    echo '<script>alert("Invalid phone number!")</script>';
+                                                    return jsonResponse('error', 'Invalid phone number!');
                                                 }
                                             }
                                         }
@@ -289,10 +293,9 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                                             $userModel->setAddress($address);
                                         }
 
-                                        // Save the updated user model
                                         $userBUS->updateModel($userModel);
                                         $userBUS->refreshData();
-                                        echo '<script>alert("Apply changes successfully!")</script>';
+                                        return jsonResponse('success', 'Apply changes successfully!');
                                     }
                                 }
                                 ?>
@@ -302,11 +305,11 @@ $ordersListFromUser = OrdersBUS::getInstance()->getOrdersByUserId($userModel->ge
                 </div>
             </div>
         </div>
-
     </div>
-    <script src="<?php echo _WEB_HOST_TEMPLATE ?>/js/profile_setting.js"></script>
+
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo _WEB_HOST_TEMPLATE ?>/js/profile_setting.js"></script>
 </body>
 
 <div id="footer">

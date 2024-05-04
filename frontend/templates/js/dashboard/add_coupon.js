@@ -71,7 +71,7 @@ $(document).ready(function () {
             $.ajax({
                 url: 'http://localhost/frontend/index.php?module=dashboard&view=coupon.view',
                 method: "POST",
-                dataType: "html",
+                dataType: "json",
                 data: {
                     couponCode: couponCode.value,
                     couponQuantity: couponQuantity.value,
@@ -80,9 +80,13 @@ $(document).ready(function () {
                     couponExpiredDate: couponExpiredDate.value,
                     saveBtn: true
                 },
-                success: function () {
-                    alert("Coupon added successfully");
-                    window.location.reload();
+                success: function (data) {
+                    if (data.status == "success") {
+                        alert(data.message);
+                        window.location.reload();
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
                 error: function () {
                     alert("Error adding coupon");

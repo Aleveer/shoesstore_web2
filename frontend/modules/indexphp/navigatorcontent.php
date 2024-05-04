@@ -17,11 +17,11 @@ $randomProducts = ProductBUS::getInstance()->getRandomRecommendProducts();
         </ul>
         <ul>
             <i class="fa-solid fa-rotate-left" style="color: #0e5fec;"></i>
-            30 DAYS MONEY-BACK GUARANTE
+            30 DAYS MONEY-BACK GUARANTEE
         </ul>
         <ul>
             <i class="fa-solid fa-medal" style="color: #0e5fec;"></i>
-            EXPEREINCED SELLER
+            EXPERIENCED SELLER
         </ul>
     </div>
 

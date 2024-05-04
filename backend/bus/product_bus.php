@@ -46,33 +46,7 @@ class ProductBUS implements BUSInterface
 
     public function addModel($productModel)
     {
-        if (
-            empty($productModel->getName()) ||
-            empty($productModel->getCategoryId()) ||
-            empty($productModel->getPrice()) ||
-            empty($productModel->getDescription()) ||
-            empty($productModel->getImage()) ||
-            empty($productModel->getGender() ||
-            empty($productModel->getStatus()) ||
-            $productModel->getName() == null ||
-            $productModel->getCategoryId() == null ||
-            $productModel->getPrice() == null ||
-            $productModel->getDescription() == null ||
-            $productModel->getImage() == null ||
-            $productModel->getGender() == null ||
-            $productModel->getStatus() == null)
-        ) {
-            throw new InvalidArgumentException("Please fill in all fields");
-        }
-
-        if ($productModel->getPrice() < 0) {
-            throw new InvalidArgumentException("Price must be greater than 0");
-        }
-
-        if ($productModel->getCategoryId() < 0) {
-            throw new InvalidArgumentException("Category ID must be greater than 0");
-        }
-
+        $this->validateModel($productModel);
         $newProduct = ProductDAO::getInstance()->insert($productModel);
         if ($newProduct) {
             $this->productList[] = $productModel;
@@ -84,6 +58,7 @@ class ProductBUS implements BUSInterface
 
     public function updateModel($model)
     {
+        $this->validateModel($model);
         $result = ProductDAO::getInstance()->update($model);
         if ($result) {
             $index = array_search($model, $this->productList);
@@ -165,4 +140,53 @@ class ProductBUS implements BUSInterface
         return $result;
     }
 
+    public function validateModel($model)
+    {
+        if (empty($model->getName())) {
+            throw new InvalidArgumentException("Name is required");
+        }
+
+        if (empty($model->getCategoryId())) {
+            throw new InvalidArgumentException("Category ID is required");
+        }
+
+        if (empty($model->getPrice())) {
+            throw new InvalidArgumentException("Price is required");
+        }
+
+        if (empty($model->getDescription())) {
+            throw new InvalidArgumentException("Description is required");
+        }
+
+        if (empty($model->getImage())) {
+            throw new InvalidArgumentException("Image is required");
+        }
+
+        if ($model->getGender() != 0 && $model->getGender() != 1) {
+            throw new InvalidArgumentException("Gender is not valid");
+        }
+
+        if (empty($model->getStatus())) {
+            throw new InvalidArgumentException("Status is required");
+        }
+
+        if (
+            $model->getName() == null ||
+            $model->getCategoryId() == null ||
+            $model->getPrice() == null ||
+            $model->getDescription() == null ||
+            $model->getImage() == null ||
+            $model->getStatus() == null
+        ) {
+            throw new InvalidArgumentException("Please fill in all fields");
+        }
+
+        if ($model->getPrice() < 0) {
+            throw new InvalidArgumentException("Price must be greater than 0");
+        }
+
+        if ($model->getCategoryId() < 0) {
+            throw new InvalidArgumentException("Category ID must be greater than 0");
+        }
+    }
 }

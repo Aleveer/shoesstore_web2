@@ -32,7 +32,7 @@ class SizeItemsBUS implements BUSInterface
     {
         return SizeItemsDAO::getInstance()->getById($id);
     }
-    public function addModel($sizeItemsModel): int
+    public function addModel($sizeItemsModel)
     {
         $this->validateModel($sizeItemsModel);
         $result = SizeItemsDAO::getInstance()->insert($sizeItemsModel);
@@ -43,7 +43,7 @@ class SizeItemsBUS implements BUSInterface
         return $result;
     }
 
-    public function updateModel($sizeItemsModel): int
+    public function updateModel($sizeItemsModel)
     {
         $this->validateModel($sizeItemsModel);
         $result = SizeItemsDAO::getInstance()->update($sizeItemsModel);
@@ -79,8 +79,11 @@ class SizeItemsBUS implements BUSInterface
         if ($sizeItemsModel->getProductId() == null) {
             throw new Exception("Product ID is required");
         }
-        if ($sizeItemsModel->getQuantity() == null) {
+        if (trim($sizeItemsModel->getQuantity()) === "") {
             throw new Exception("Quantity is required");
+        }
+        if ($sizeItemsModel->getQuantity() < 0) {
+            throw new Exception("Invalid quantity value");
         }
     }
 

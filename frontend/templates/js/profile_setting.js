@@ -43,13 +43,14 @@ document.addEventListener('DOMContentLoaded', function () {
         $.ajax({
             url: "http://localhost/frontend/index.php?module=account&action=profilesetting",
             type: "POST",
-            dataType: "html",
+            dataType: "json",
             data: {
                 username: username.value,
                 name: name.value,
                 email: email.value,
                 maleGender: maleGender.checked,
                 femaleGender: femaleGender.checked,
+                saveButton: true,
             },
             success: function (data) {
                 console.log("sent successfully");
@@ -123,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 $.ajax({
                     url: "http://localhost/frontend/index.php?module=account&action=profilesetting",
                     type: "POST",
-                    dataType: "html",
+                    dataType: "json",
                     data: {
                         username: username.value,
                         'account-name': name.value,
@@ -227,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $.ajax({
                 url: "http://localhost/frontend/index.php?module=account&action=profilesetting",
                 type: "POST",
-                dataType: "html",
+                dataType: "json",
                 data: {
                     'phone-customer': phoneNumber.value,
                     'address-customer': address.value,

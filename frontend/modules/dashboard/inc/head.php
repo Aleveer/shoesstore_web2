@@ -15,7 +15,7 @@ if (!isset($title)) {
     <title>Dashboard</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../../../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -37,7 +37,7 @@ if (!isset($title)) {
     <link rel="stylesheet" href="modules/dashboard/css/global.css">
     <link rel="stylesheet" href="modules/dashboard/css/scrollbar.css">
     <link rel="stylesheet" href="modules/dashboard/css/product.css">
-    
+
     <!-- Feather Icon -->
     <script src="https://unpkg.com/feather-icons"></script>
 </head>

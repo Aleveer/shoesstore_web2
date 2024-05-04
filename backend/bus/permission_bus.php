@@ -30,7 +30,7 @@ class PermissionBUS implements BUSInterface
     {
         $this->permissionList = PermissionDAO::getInstance()->getAll();
     }
-    public function getModelById(int $id)
+    public function getModelById($id)
     {
         return PermissionDAO::getInstance()->getById($id);
     }
@@ -43,7 +43,7 @@ class PermissionBUS implements BUSInterface
         }
         return null;
     }
-    public function addModel($permissionModel): int
+    public function addModel($permissionModel)
     {
         $this->validateModel($permissionModel);
         $result = PermissionDAO::getInstance()->insert($permissionModel);
@@ -53,7 +53,7 @@ class PermissionBUS implements BUSInterface
         }
         return $result;
     }
-    public function updateModel($permissionModel): int
+    public function updateModel($permissionModel)
     {
         $this->validateModel($permissionModel);
         $result = PermissionDAO::getInstance()->update($permissionModel);

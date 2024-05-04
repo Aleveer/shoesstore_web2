@@ -33,12 +33,12 @@ class PaymentsBUS implements BUSInterface
         PaymentsDAO::getInstance()->readDatabase();
     }
 
-    public function getModelById(int $id)
+    public function getModelById($id)
     {
         return PaymentsDAO::getInstance()->getById($id);
     }
 
-    public function getModelByOrderId(int $orderId)
+    public function getModelByOrderId($orderId)
     {
         return PaymentsDAO::getInstance()->getByOrderId($orderId);
     }

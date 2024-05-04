@@ -46,7 +46,7 @@ class PermissionDAO implements DAOInterface
         return $permissionList;
     }
 
-    public function getById(int $id)
+    public function getById($id)
     {
         $query = "SELECT * FROM permissions WHERE id = ?";
         $result = DatabaseConnection::executeQuery($query, $id);

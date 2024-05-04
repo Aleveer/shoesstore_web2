@@ -70,18 +70,18 @@ if (!defined('_CODE')) {
                     <img class="user__image" src="<?php echo _WEB_HOST_TEMPLATE ?>/images/avt.png" alt="">
                     <i class="fa-solid fa-angle-down user__dropdown"></i>
                     <ul class="user__dropdown__menu hide">
-                        <li class="user__dropdown__menu__item">
-                            <a href="?module=account&action=profilesetting">Profile Setting</a>
-                        </li>
-                        <?php if ($userModel->getRoleId() == RolesEnums::CUSTOMER) {
-                            echo '<li class="user__dropdown__menu__item">
-                            <a href="?module=account&action=order-list">Purchase List</a>
-                        </li>';
-                        } else {
-                            echo '<li class="user__dropdown__menu__item">
-                            <a href="?module=dashboard&view=dashboard.view">Dashboard</a>';
-                        }
-                        ; ?>
+                        <?php if ($userModel->getRoleId() == RolesEnums::CUSTOMER) { ?>
+                            <li class="user__dropdown__menu__item">
+                                <a href="?module=account&action=profilesetting">Profile Setting</a>
+                            </li>
+                            <li class="user__dropdown__menu__item">
+                                <a href="?module=account&action=order-list">Purchase List</a>
+                            </li>
+                        <?php } else { ?>
+                            <li class="user__dropdown__menu__item">
+                                <a href="?module=dashboard&view=dashboard.view">Dashboard</a>
+                            </li>
+                        <?php } ?>
                         <li class="user__dropdown__menu__item">
                             <a href="?module=auth&action=logout">Log out</a>
                         </li>

@@ -32,7 +32,7 @@ class validation
 
     public static function isValidPassword($password)
     {
-        $regex = "/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$/";
+        $regex = "/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>]).+$/";
         return self::isMatch($password, $regex);
     }
 
@@ -51,7 +51,7 @@ class validation
     public static function isValidPrice($input)
     {
         $regex = "/^[1-9]\\d*(\\.\\d+)?$/";
-        return self::isMatch($input, $regex) && (float)$input > 0;
+        return self::isMatch($input, $regex) && (float) $input > 0;
     }
 
     public static function isValidAddress($address)

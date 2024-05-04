@@ -34,16 +34,27 @@ class UserBUS implements BUSInterface
         $this->userList = UserDAO::getInstance()->getAll();
     }
 
-    public function getModelById(int $id)
+    public function getModelById($id)
     {
         return UserDAO::getInstance()->getById($id);
     }
 
-    public function getModelByEmail(string $email)
+    public function getModelByEmail($email)
     {
         $this->userList = UserDAO::getInstance()->getAll();
         for ($i = 0; $i < count($this->userList); $i++) {
             if ($this->userList[$i]->getEmail() === $email) {
+                return $this->userList[$i];
+            }
+        }
+        return null;
+    }
+
+    public function getModelByPhone($phone)
+    {
+        $this->userList = UserDAO::getInstance()->getAll();
+        for ($i = 0; $i < count($this->userList); $i++) {
+            if ($this->userList[$i]->getPhone() === $phone) {
                 return $this->userList[$i];
             }
         }
@@ -137,27 +148,14 @@ class UserBUS implements BUSInterface
             $errors['gender']['required'] = "Gender is required";
         }
 
-        // Check for possibly taken properties in database:
-        if ($this->isUsernameTaken($userModel->getUsername())) {
-            $errors['username']['taken'] = "Username is taken";
+        //Validate username and password
+        if (!$validation->isValidUsername($userModel->getUsername())) {
+            $errors['username']['valid'] = "Invalid username";
         }
 
-        if ($this->isEmailTaken($userModel->getEmail())) {
-            $errors['email']['taken'] = "Email is taken";
+        if (!$validation->isValidPassword($userModel->getPassword())) {
+            $errors['password']['valid'] = "Invalid password";
         }
-
-        if ($this->isPhoneTaken($userModel->getPhone())) {
-            $errors['phone']['taken'] = "Phone number is taken";
-        }
-
-        // Validate username and password
-        // if (!$validation->isValidUsername($userModel->getUsername())) {
-        //     $errors['username']['valid'] = "Invalid username";
-        // }
-
-        // if (!$validation->isValidPassword($userModel->getPassword())) {
-        //     $errors['password']['valid'] = "Invalid password";
-        // }
 
         if (strlen($userModel->getPassword()) < 8) {
             $errors['password']['min-length'] = "Password must be at least 8 characters";
@@ -180,8 +178,6 @@ class UserBUS implements BUSInterface
         $roleId = $userModel->getRoleId();
         if ($roleId === null) {
             $errors[] = "Role is required";
-        } else {
-            $errors[] = "Invalid role";
         }
 
         // Validate phone number and address
@@ -221,19 +217,28 @@ class UserBUS implements BUSInterface
 
     public function isUsernameTaken($username)
     {
-        $usernames = array_column($this->userList, 'username');
-        return in_array($username, $usernames);
+        for ($i = 0; $i < count($this->userList); $i++) {
+            if ($this->userList[$i]->getUsername() == $username) {
+                return true;
+            }
+        }
     }
 
-    public function isEmailTaken($email)
+    public function isEmailTaken($email, $userIdToSkip)
     {
-        $emails = array_column($this->userList, 'email');
-        return in_array($email, $emails);
+        for ($i = 0; $i < count($this->userList); $i++) {
+            if ($this->userList[$i]->getEmail() == $email && $this->userList[$i]->getId() != $userIdToSkip) {
+                return true;
+            }
+        }
     }
 
-    public function isPhoneTaken($phone)
+    public function isPhoneTaken($phone, $userIdToSkip)
     {
-        $phones = array_column($this->userList, 'phone');
-        return in_array($phone, $phones);
+        for ($i = 0; $i < count($this->userList); $i++) {
+            if ($this->userList[$i]->getPhone() == $phone && $this->userList[$i]->getId() != $userIdToSkip) {
+                return true;
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ $data = [
 ];
 
 //Check login status
+//TODO: Finish the code: the notification is not showing up:
 if (isLogin()) {
     redirect('?module=indexphp&action=userhomepage');
 } else {
@@ -88,7 +89,8 @@ $msgType = session::getInstance()->getFlashData('msg_type');
                 <button type="submit" class="btn btn-primary btn-block mg-form mt-3" style="width:100%;">Send</button>
                 <hr>
                 <p class="text-center"><a href="?module=auth&action=login">Login</a></p>
-                <p class="text-center"><a href="?module=auth&action=register">Don't have an account? Register here</a></p>
+                <p class="text-center"><a href="?module=auth&action=register">Don't have an account? Register here</a>
+                </p>
             </form>
         </div>
     </div>

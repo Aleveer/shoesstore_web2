@@ -76,7 +76,7 @@ class RoleDAO implements DAOInterface
         return DatabaseConnection::executeUpdate($updateSql, ...$args);
     }
 
-    public function delete(int $id): int
+    public function delete($id): int
     {
         $deleteSql = "DELETE FROM roles WHERE id = ?";
         return DatabaseConnection::executeUpdate($deleteSql, $id);
@@ -90,7 +90,7 @@ class RoleDAO implements DAOInterface
         $query = "";
         if ($columnNames === null || count($columnNames) === 0) {
             $query = "SELECT * FROM roles WHERE id LIKE ? OR name LIKE ?";
-            $args = array_fill(0,  2, "%" . $condition . "%");
+            $args = array_fill(0, 2, "%" . $condition . "%");
         } else if (count($columnNames) === 1) {
             $column = $columnNames[0];
             $query = "SELECT * FROM roles WHERE $column LIKE ?";
@@ -104,9 +104,6 @@ class RoleDAO implements DAOInterface
         while ($row = $rs->fetch_assoc()) {
             $roleModel = $this->createRoleModel($row);
             array_push($roleList, $roleModel);
-        }
-        if (count($roleList) === 0) {
-            throw new Exception("No records found for the given condition: " . $condition);
         }
         return $roleList;
     }

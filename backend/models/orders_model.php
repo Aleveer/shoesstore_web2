@@ -83,4 +83,18 @@ class OrdersModel
     {
         $this->status = $status;
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'userId' => $this->userId,
+            'orderDate' => $this->orderDate,
+            'totalAmount' => $this->totalAmount,
+            'customerName' => $this->customerName,
+            'customerPhone' => $this->customerPhone,
+            'customerAddress' => $this->customerAddress,
+            'status' => $this->status,
+        ];
+    }
 }

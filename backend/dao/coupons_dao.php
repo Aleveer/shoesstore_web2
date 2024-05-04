@@ -106,9 +106,6 @@ class CouponsDAO implements DAOInterface
             $couponsModel = $this->createCouponsModel($row);
             array_push($couponsList, $couponsModel);
         }
-        if (count($couponsList) === 0) {
-            throw new Exception("No records found for the given condition: " . $condition);
-        }
         return $couponsList;
     }
 }

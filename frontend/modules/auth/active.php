@@ -15,8 +15,8 @@ $data = [
 
 layouts('header', $data);
 
-
-if (!empty(filter()['token']))  $token = filter()['token'];
+if (!empty(filter()['token']))
+    $token = filter()['token'];
 if (!empty($token)) {
     //Nếu có tồn tại token thì truy vấn và CSDL để check xem có trùng activeToken trong user hay không
     $userQuery = UserBUS::getInstance()->getModelByActiveToken($token);
@@ -28,6 +28,7 @@ if (!empty($token)) {
         $updateStatus = UserBUS::getInstance()->updateModel($userQuery);
 
         if ($updateStatus) {
+            error_log('Update status: ' . $updateStatus);
             session::getInstance()->setFlashData('msg', 'Your account has been activated successfully!');
             session::getInstance()->setFlashData('msg_type', 'success');
             redirect('?module=auth&action=login');

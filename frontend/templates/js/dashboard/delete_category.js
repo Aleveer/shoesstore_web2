@@ -7,13 +7,18 @@ $(document).ready(function () {
             $.ajax({
                 url: 'http://localhost/frontend/index.php?module=dashboard&view=category.view',
                 method: 'POST',
-                dataType: 'html',
+                dataType: 'json',
                 data: {
                     categoryId: categoryId,
                     deleteCategoryBtn: true,
                 },
-                success: function () {
-                    window.location.reload();
+                success: function (data) {
+                    if (data.status == "success") {
+                        alert(data.message);
+                        window.location.reload();
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log('Delete request failed');

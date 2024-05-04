@@ -76,7 +76,7 @@ class SizeDAO implements DAOInterface
         return DatabaseConnection::executeUpdate($updateSql, ...$args);
     }
 
-    public function delete(int $id): int
+    public function delete($id): int
     {
         $deleteSql = "DELETE FROM sizes WHERE id = ?";
         return DatabaseConnection::executeUpdate($deleteSql, $id);
@@ -90,7 +90,7 @@ class SizeDAO implements DAOInterface
         $query = "";
         if ($columnNames === null || count($columnNames) === 0) {
             $query = "SELECT * FROM sizes WHERE id LIKE ? OR name LIKE ?";
-            $args = array_fill(0,  2, "%" . $condition . "%");
+            $args = array_fill(0, 2, "%" . $condition . "%");
         } else if (count($columnNames) === 1) {
             $column = $columnNames[0];
             $query = "SELECT * FROM sizes WHERE $column LIKE ?";

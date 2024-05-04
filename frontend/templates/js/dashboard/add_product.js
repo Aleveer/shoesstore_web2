@@ -22,9 +22,11 @@ $(document).ready(function () {
     if (saveBtn) {
         saveBtn.addEventListener("click", function (event) {
             event.preventDefault();
-            //Check if all fields are filled and valid:
+
             if (!productName.value) {
                 alert("Please enter product name");
+                //clear the input field
+                productName.value = "";
                 return;
             }
 
@@ -35,30 +37,43 @@ $(document).ready(function () {
 
             if (!productPrice.value) {
                 alert("Please enter product price");
+                //clear the input field
+                productPrice.value = "";
                 return;
             }
 
-            if (isNaN(productPrice.value) || productPrice.value < 0) {
+            if (isNaN(productPrice.value)) {
                 alert("Please enter a valid price");
+                //clear the input field
+                productPrice.value = "";
                 return;
             }
 
-            if (chosenGender.value == "Male") {
-                chosenGender.value = 0;
-            } else {
-                chosenGender.value = 1;
+            if (productPrice.value < 1) {
+                alert("Price can't be less than 1");
+                //clear the input field
+                productPrice.value = "";
+                return;
             }
 
+            // if (chosenGender.value == "0") {
+            //     chosenGender.value = 0;
+            // } else {
+            //     chosenGender.value = 1;
+            // }
+            // console.log(chosenGender.value);
             //Check description:
             if (!productDescription.value) {
                 alert("Please enter product description");
+                //clear the input field
+                productDescription.value = "";
                 return;
             }
 
             //Check valid description:
             let trimmedDescription = productDescription.value.trim();
             if (trimmedDescription.length < 10) {
-                alert("Please enter a valid description");
+                alert("Description must be at least 10 characters long");
                 return;
             }
 
@@ -71,7 +86,7 @@ $(document).ready(function () {
             $.ajax({
                 url: window.location.href,
                 method: "POST",
-                dataType: "html",
+                dataType: "json",
                 data: {
                     productName: productName.value,
                     category: chosenCategory.value,
@@ -82,7 +97,12 @@ $(document).ready(function () {
                     saveBtn: true,
                 },
                 success: function (data) {
-                    alert("Product created successfully");
+                    if (data.status == "success") {
+                        alert(data.message);
+                        window.location.reload();
+                    } else if (data.status == "error") {
+                        alert(data.message);
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert("Error creating product: " + errorThrown);

@@ -1,4 +1,7 @@
 <?php
+use backend\enums\StatusEnums;
+
+ob_start();
 use backend\bus\CategoriesBUS;
 use backend\bus\OrderItemsBUS;
 use backend\bus\SizeItemsBUS;
@@ -12,6 +15,11 @@ if (!defined('_CODE')) {
 if (!isAllowToDashBoard()) {
     die('Access denied');
 }
+
+if (!checkPermission(1)) {
+    die('Access denied');
+}
+
 include (__DIR__ . '/../inc/head.php');
 
 use backend\bus\ProductBUS;
@@ -74,7 +82,7 @@ function showProductList($product)
                     </div>
                 </div>
 
-                <form action="" method="POST">
+                <form action="" method="POST" class="m-0 col-lg-6">
                     <div class="search-group input-group py-2">
                         <input type="text" name="productSearch" id="productSearchBar" class="searchInput form-control"
                             placeholder="Search anything here...">
@@ -91,7 +99,7 @@ function showProductList($product)
                             <th></th>
                             <th class='text-center'>ID</th>
                             <th class='col-3'>Product Name</th>
-                            <th class='col-1'>Categories</th>
+                            <th class='col-1'>Category</th>
                             <th class='col-5'>Description</th>
                             <th class='col-1 text-center'>Price</th>
                             <th class='col-2 text-center'>Action</th>
@@ -103,10 +111,53 @@ function showProductList($product)
                         <?php
                         //By default, the product list shows all: 
                         if (!isPost() || (isPost() && !isset($_POST['productSearchButtonName']))) {
-                            foreach ($productList as $product): ?>
-                                <?= showProductList($product); ?>
-                            <?php endforeach;
-                        } ?>
+                            if (count($productList) > 0) {
+                                // Get the current page number from the URL, if it's not set default to 1
+                                $page = isset($_GET['page']) ? $_GET['page'] : 1;
+
+                                // By default, the product list shows all: 
+                                if (!isPost() || (isPost() && !isset($_POST['productSearchButtonName']))) {
+                                    // Split the product list into chunks of 12
+                                    $productChunks = array_chunk($productList, 12);
+
+                                    // Get the products for the current page
+                                    $productsForCurrentPage = $productChunks[$page - 1];
+
+                                    foreach ($productsForCurrentPage as $product): ?>
+                                        <?= showProductList($product); ?>
+                                    <?php endforeach;
+                                }
+
+                                // Calculate the total number of pages
+                                $totalPages = count($productChunks);
+
+                                echo "<nav aria-label='Page navigation example'>";
+                                echo "<ul class='pagination justify-content-start'>";
+
+                                // Add previous button
+                                if ($page > 1) {
+                                    echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page - 1) . "'>Previous</a></li>";
+                                }
+
+                                for ($i = 1; $i <= $totalPages; $i++) {
+                                    // Highlight the current page
+                                    if ($i == $page) {
+                                        echo "<li class='page-item active'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
+                                    } else {
+                                        echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
+                                    }
+                                }
+
+                                // Add next button
+                                if ($page < $totalPages) {
+                                    echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page + 1) . "'>Next</a></li>";
+                                }
+
+                                echo "</ul>";
+                                echo "</nav>";
+                            }
+                        }
+                        ?>
 
                         <!-- Function -->
                         <?php
@@ -129,10 +180,48 @@ function showProductList($product)
                                         echo "No result found!";
                                         echo "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
                                         echo "</div>";
+                                    } else {
+                                        // Get the current page number from the URL, if it's not set default to 1
+                                        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                        // Split the product list into chunks of 12
+                                        $productChunks = array_chunk($searchResult, 12);
+
+                                        // Get the products for the current page
+                                        $productsForCurrentPage = $productChunks[$page - 1];
+                                        // Calculate the total number of pages
+                                        $totalPages = count($productChunks);
+
+                                        echo "<nav aria-label='Page navigation example'>";
+                                        echo "<ul class='pagination justify-content-center'>";
+
+                                        // Add previous button
+                                        if ($page > 1) {
+                                            echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page - 1) . "'>Previous</a></li>";
+                                        }
+
+                                        for ($i = 1; $i <= $totalPages; $i++) {
+                                            // Highlight the current page
+                                            if ($i == $page) {
+                                                echo "<li class='page-item active'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
+                                            } else {
+                                                echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
+                                            }
+                                        }
+
+                                        // Add next button
+                                        if ($page < $totalPages) {
+                                            echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page + 1) . "'>Next</a></li>";
+                                        }
+
+                                        echo "</ul>";
+                                        echo "</nav>";
+
+                                        foreach ($productsForCurrentPage as $product): ?>
+                                            <?= showProductList($product); ?>
+                                        <?php endforeach;
                                     }
-                                }
-                                foreach ($searchResult as $product) {
-                                    showProductList($product);
+
+
                                 }
                             }
                         }
@@ -188,8 +277,7 @@ function showProductList($product)
                                             accept=".jpg, .jpeg, .png">
                                     </div>
                                     <div class="col-5 productImg">
-                                        <img id="imgPreview" src="..\..\..\..\templates\images\680098.jpg"
-                                            alt="Preview Image">
+                                        <img id="imgPreview" src="" alt="Preview Image">
                                     </div>
                             </div>
                             <div class="modal-footer">
@@ -200,20 +288,18 @@ function showProductList($product)
                             <?php
                             if (isPost()) {
                                 if (isset($_POST['saveBtn'])) {
+                                    error_log('Save button clicked');
                                     $productName = $_POST['productName'];
                                     $productCategory = $_POST['category'];
                                     $productPrice = $_POST['price'];
                                     $productGender = $_POST['gender'];
                                     $productDescription = $_POST['description'];
-
-                                    $productModel = new ProductModel(null, $productName, $productCategory, $productPrice, $productDescription, null, $productGender, 'active');
                                     $data = $_POST['image'];
-                                    $productModel->setImage($data);
-
+                                    $productModel = new ProductModel(null, $productName, $productCategory, $productPrice, $productDescription, $data, $productGender, strtolower(StatusEnums::INACTIVE));
                                     ProductBUS::getInstance()->addModel($productModel);
                                     ProductBUS::getInstance()->refreshData();
-                                    //Once created, refresh the page:
-                                    echo '<script>window.location.href = "?module=dashboard&view=product.view";</script>';
+                                    ob_end_clean();
+                                    return jsonResponse('success', 'Product added successfully!');
                                 }
                             }
                             ?>
@@ -229,14 +315,15 @@ function showProductList($product)
                         error_log('Delete button clicked');
                         $productId = $_POST['productId'];
                         $updateProductStatus = ProductBUS::getInstance()->getModelById($productId);
-                        $updateProductStatus->setStatus('inactive');
+                        $updateProductStatus->setStatus(strtolower(StatusEnums::INACTIVE));
                         ProductBUS::getInstance()->updateModel($updateProductStatus);
                         ProductBUS::getInstance()->refreshData();
+                        ob_end_clean();
+                        return jsonResponse('success', 'Product hidden successfully!');
                     }
                 }
 
                 //Handle completely delete product:
-                //TODO: Fix not popping up confirmation dialog
                 if (isPost()) {
                     if (isset($_POST['completelyDeleteProduct'])) {
                         $productId = $_POST['productId'];
@@ -245,13 +332,10 @@ function showProductList($product)
                         //Check for orders that contain the product:
                         $orders = OrderItemsBUS::getInstance()->getOrderItemsListByProductId($productId);
                         if (count($orders) > 0) {
-                            echo '<script>alert("Cannot delete product. Product is in orders.");</script>';
                             error_log('Cannot delete product. Product is in orders.');
+                            ob_end_clean();
+                            return jsonResponse('error', 'Cannot delete product. Product is in orders.');
                         } else {
-                            //Confirm to delete product:
-                            echo '<script>
-            if(confirm("Are you sure you want to delete this product? Once you delete, you cannot recover it.")) {
-                ';
                             foreach (SizeItemsBUS::getInstance()->getModelByProductId($productId) as $sizeItem) {
                                 if ($sizeItem->getProductId() == $productId) {
                                     SizeItemsBUS::getInstance()->deleteModel($sizeItem);
@@ -259,10 +343,9 @@ function showProductList($product)
                             }
                             ProductBUS::getInstance()->deleteModel($productPreparedToDel->getId());
                             ProductBUS::getInstance()->refreshData();
-                            echo '
-            window.location.href = "?module=dashboard&view=product.view";
-            }
-            </script>';
+                            error_log('Product deleted successfully!');
+                            ob_end_clean();
+                            return jsonResponse('success', 'Product deleted successfully!');
                         }
                     }
                 }

@@ -54,12 +54,16 @@ class SizeBUS implements BUSInterface
         }
         return $result;
     }
-    public function deleteModel($sizeModel): int
+    public function deleteModel($id)
     {
-        $result = SizeDAO::getInstance()->delete($sizeModel);
+        $result = SizeDAO::getInstance()->delete($id);
         if ($result) {
-            $index = array_search($sizeModel, $this->sizeList);
-            unset($this->sizeList[$index]);
+            foreach ($this->sizeList as $index => $sizeModel) {
+                if ($sizeModel->getId() == $id) {
+                    unset($this->sizeList[$index]);
+                    break;
+                }
+            }
             $this->refreshData();
         }
         return $result;

@@ -134,7 +134,7 @@ class UserDAO implements DAOInterface
         $query = "";
         if ($columnNames === null || count($columnNames) === 0) {
             $query = "SELECT * FROM users WHERE id LIKE ? OR username LIKE ? OR email LIKE ? OR name LIKE ? OR phone LIKE ? OR gender LIKE ? OR role_id LIKE ? OR address LIKE ? OR status LIKE ?";
-            $args = array_fill(0,  9, "%" . $condition . "%");
+            $args = array_fill(0, 9, "%" . $condition . "%");
         } else if (count($columnNames) === 1) {
             $column = $columnNames[0];
             $query = "SELECT * FROM users WHERE $column LIKE ?";
@@ -148,9 +148,6 @@ class UserDAO implements DAOInterface
         while ($row = $rs->fetch_assoc()) {
             $userModel = $this->createUserModel($row);
             array_push($userList, $userModel);
-        }
-        if (count($userList) === 0) {
-            throw new Exception("No records found for the given condition: " . $condition);
         }
         return $userList;
     }

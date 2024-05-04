@@ -1,9 +1,10 @@
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
     <?php
-    requireLogin();
     use backend\bus\TokenLoginBUS;
     use backend\bus\UserBUS;
     use backend\services\session;
+
+    requireLogin();
 
     $token = session::getInstance()->getSession('tokenLogin');
     $tokenModel = TokenLoginBUS::getInstance()->getModelByToken($token);
@@ -18,7 +19,7 @@
     <!--    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">-->
     <div class="navbar-nav">
         <div class="nav-item text-nowrap">
-            <a class="nav-link px-3" href="#">Sign out</a>
+            <a class="nav-link px-3" href="?module=auth&action=logout">Sign out</a>
         </div>
     </div>
 </header>

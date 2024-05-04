@@ -34,9 +34,19 @@ class RolePermissionBUS implements BUSInterface
         $this->rolePermissionList = RolePermissionDAO::getInstance()->getAll();
     }
 
-    public function getModelById(int $id)
+    public function getModelById($id)
     {
         return RolePermissionDAO::getInstance()->getById($id);
+    }
+
+    public function getModelByRoleId($roleId)
+    {
+        return RolePermissionDAO::getInstance()->getByRoleId($roleId);
+    }
+
+    public function getModelByRoleIdAndPermissionId($roleId, $permissionId)
+    {
+        return RolePermissionDAO::getInstance()->getByRoleIdAndPermissionId($roleId, $permissionId);
     }
 
     public function addModel($rolePermissionModel): int
@@ -50,7 +60,7 @@ class RolePermissionBUS implements BUSInterface
         return $result;
     }
 
-    public function updateModel($rolePermissionModel): int
+    public function updateModel($rolePermissionModel)
     {
         $this->validateModel($rolePermissionModel);
         $result = RolePermissionDAO::getInstance()->update($rolePermissionModel);
@@ -68,6 +78,15 @@ class RolePermissionBUS implements BUSInterface
         if ($result) {
             $index = array_search($rolePermissionModel, $this->rolePermissionList);
             unset($this->rolePermissionList[$index]);
+            $this->refreshData();
+        }
+        return $result;
+    }
+
+    public function deleteModelByRoleId($roleId)
+    {
+        $result = RolePermissionDAO::getInstance()->deleteByRoleId($roleId);
+        if ($result) {
             $this->refreshData();
         }
         return $result;

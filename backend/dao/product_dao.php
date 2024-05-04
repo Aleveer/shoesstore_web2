@@ -82,7 +82,7 @@ class ProductDAO implements DAOInterface
 
     public function insert($data): int
     {
-        $query = "INSERT INTO products (name, category_id, price, description, image, gender, status) VALUES (?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO products (name, category_id, price, description, image, gender, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $args = [
             $data->getName(),
             $data->getCategoryId(),

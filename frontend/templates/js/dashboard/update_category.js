@@ -25,17 +25,23 @@ $(document).ready(function () {
             return;
         }
         $.ajax({
-            url: window.location.href,
+            url: 'http://localhost/frontend/index.php?module=dashboard&view=category.view',
             method: 'POST',
-            datatype: 'html',
+            datatype: 'json',
             data: {
                 id: categoryId,
                 name: categoryName,
                 editButtonName: true
             },
-            success: function (response) {
-                // handle the response from the server
-                alert('Category updated successfully');
+            success: function (data) {
+                if (data.status == "success") {
+                    alert(data.message);
+                    //Close the modal
+                    $('#editModal' + categoryId).modal('hide');
+                    window.location.reload();
+                } else if (data.status == "error") {
+                    alert(data.message);
+                }
             },
             error: function (xhr, status, error) {
                 // handle any errors

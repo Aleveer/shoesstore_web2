@@ -39,14 +39,14 @@ $(document).ready(function () {
             // Sending data via AJAX
             $.ajax({
                 url:
-                    "http://localhost/frontend/index.php?module=indexphp&action=singleproduct&id=" +
+                    "http://localhost/frontend/?module=indexphp&action=singleproduct&id=" +
                     id,
                 type: "POST",
-                dataType: "html",
+                dataType: "json",
                 data: {
                     addtocart: true,
                     sizeItem: sizeId,
-                    pquantity: quantity, 
+                    pquantity: quantity,
                 },
 
                 success: function (data) {

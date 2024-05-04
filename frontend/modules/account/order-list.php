@@ -9,6 +9,13 @@ requireLogin();
 $token = session::getInstance()->getSession('tokenLogin');
 $tokenModel = TokenLoginBUS::getInstance()->getModelByToken($token);
 $userModel = UserBUS::getInstance()->getModelById($tokenModel->getUserId());
+//Only customer can access this page:
+if ($userModel->getRoleId() != 4) {
+    //Echo a message then redirect to the user's homepage
+    echo '<script>alert("You are not authorized to access this page!")</script>';
+    redirect('?module=indexphp&action=userhomepage');
+}
+
 $cartListFromUser = CartsBUS::getInstance()->getModelByUserId($userModel->getId());
 
 $orderList = OrdersBUS::getInstance()->getOrdersByUserId($userModel->getId());
@@ -76,6 +83,6 @@ $orderList = OrdersBUS::getInstance()->getOrdersByUserId($userModel->getId());
             </tbody>
         </table>
         <script src="<?php echo _WEB_HOST_TEMPLATE ?>/js/order_detail.js"></script>
-        
+
     </div>
 </body>
