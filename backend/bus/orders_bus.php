@@ -154,20 +154,65 @@ class OrdersBUS implements BUSInterface
         });
     }
 
-    public function filterByDateRange($ngayTu = null, $ngayDen = null): array
-    {
-        if (empty($ngayTu) && empty($ngayDen)) {
-            return $statisticList = OrdersDAO::getInstance()->getAllThongKe();
-        } elseif (!empty($ngayTu) && empty($ngayDen)) {
-            return $statisticList = OrdersDAO::getInstance()->getByNgayTu($ngayTu);
-        } elseif (empty($ngayTu) && !empty($ngayDen)) {
-            return $statisticList = OrdersDAO::getInstance()->getByNgayDen($ngayDen);
-        } elseif (!empty($ngayTu) && !empty($ngayDen)) {
-            return $statisticList = OrdersDAO::getInstance()->getByNgayTuNgayDen($ngayTu, $ngayDen);
-        }
 
-        // Add a default return statement
-        return array();
+    public function filterByDateRangeKH($ngayTu = null, $ngayDen = null): array
+    {
+        if (!empty($ngayTu)) {
+            $ngayTu = date('Y-m-d', strtotime($ngayTu));
+        }
+        if (!empty($ngayDen)) {
+            $ngayDen = date('Y-m-d', strtotime($ngayDen));
+        }
+        if (empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getAllThongKeKH();
+        } elseif (!empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuKH($ngayTu);
+        } elseif (empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayDenKH($ngayDen);
+        } elseif (!empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuNgayDenKH($ngayTu, $ngayDen);
+        }
+        return [];
+    }
+
+    public function filterByDateRangeSP($ngayTu = null, $ngayDen = null): array
+    {
+        if (!empty($ngayTu)) {
+            $ngayTu = date('Y-m-d', strtotime($ngayTu));
+        }
+        if (!empty($ngayDen)) {
+            $ngayDen = date('Y-m-d', strtotime($ngayDen));
+        }
+        if (empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getAllThongKeSP();
+        } elseif (!empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuSP($ngayTu);
+        } elseif (empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayDenSP($ngayDen);
+        } elseif (!empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuNgayDenSP($ngayTu, $ngayDen);
+        }
+        return [];
+    }
+
+    public function filterByDateRangeSPTheoLoai($ngayTu = null, $ngayDen = null, $category = -1): array
+    {
+        if (!empty($ngayTu)) {
+            $ngayTu = date('Y-m-d', strtotime($ngayTu));
+        }
+        if (!empty($ngayDen)) {
+            $ngayDen = date('Y-m-d', strtotime($ngayDen));
+        }
+        if (empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getAllThongKeSPTheoLoai($category);
+        } elseif (!empty($ngayTu) && empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuSPTheoLoai($ngayTu, $category);
+        } elseif (empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayDenSPTheoLoai($ngayDen, $category);
+        } elseif (!empty($ngayTu) && !empty($ngayDen)) {
+            return $thongKeList = OrdersDAO::getInstance()->getByNgayTuNgayDenSPTheoLoai($ngayTu, $ngayDen, $category);
+        }
+        return [];
     }
 
 }

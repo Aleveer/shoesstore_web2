@@ -100,6 +100,13 @@ if (isLogin()) {
                         ?>
                     </fieldset>
                 </div>
+                <div class="psize category">
+                    Category:
+                    <?php
+                    $category = CategoriesBUS::getInstance()->getModelById($product->getCategoryId());
+                    echo $category->getName();
+                    ?>
+                </div>
                 <div class="psize">
                     Size:
                     <?php
@@ -126,6 +133,7 @@ if (isLogin()) {
                     }
                     ?>
                 </div>
+
                 <div class="quantity">
                     <label for="pquantity">Quantity :</label>
                     <input type="number" name="pquantity" id="pquantity" placeholder="1" min="1" required>

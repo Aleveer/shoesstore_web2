@@ -184,6 +184,10 @@ function displayProduct($product)
             $searchResult = array();
             if ($searchQuery !== '' && $searchQuery !== null) {
                 $searchResult = ProductBUS::getInstance()->searchModel($searchQuery, ['name']);
+                //Filter searchResult if status = 'active':
+                $searchResult = array_filter($searchResult, function ($product) {
+                    return $product->getStatus() == 'active';
+                });
             }
         }
         ?>
@@ -392,6 +396,10 @@ function displayProduct($product)
                                 }
 
                                 if (count($searchResult) > 0) {
+                                    //Filter searchResult if status = 'active':
+                                    $searchResult = array_filter($searchResult, function ($product) {
+                                        return $product->getStatus() == 'active';
+                                    });
                                     // $products_per_page = 12;
                                     // $total_products = count($searchResult);
                                     // $total_pages = ceil($total_products / $products_per_page);

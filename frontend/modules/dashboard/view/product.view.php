@@ -174,54 +174,20 @@ function showProductList($product)
                                     $searchResult = ProductBUS::getInstance()->getAllModels();
                                 } else {
                                     $searchResult = ProductBUS::getInstance()->searchModel($searchQuery, ['id', 'name', 'price', 'description']);
-                                    // Check if searchModel returned any results
                                     if (empty($searchResult) || count($searchResult) == 0) {
                                         echo "<div class='alert alert-warning alert-dismissible fade show' role='alert'>";
                                         echo "No result found!";
                                         echo "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
                                         echo "</div>";
                                     } else {
-                                        // Get the current page number from the URL, if it's not set default to 1
-                                        $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                                        // Split the product list into chunks of 12
-                                        $productChunks = array_chunk($searchResult, 12);
-
-                                        // Get the products for the current page
-                                        $productsForCurrentPage = $productChunks[$page - 1];
-                                        // Calculate the total number of pages
-                                        $totalPages = count($productChunks);
-
-                                        echo "<nav aria-label='Page navigation example'>";
-                                        echo "<ul class='pagination justify-content-center'>";
-
-                                        // Add previous button
-                                        if ($page > 1) {
-                                            echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page - 1) . "'>Previous</a></li>";
+                                        if (isset($_GET['page'])) {
+                                            header('Location: http://localhost/frontend/index.php?module=dashboard&view=product.view');
+                                            exit;
                                         }
-
-                                        for ($i = 1; $i <= $totalPages; $i++) {
-                                            // Highlight the current page
-                                            if ($i == $page) {
-                                                echo "<li class='page-item active'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
-                                            } else {
-                                                echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=$i'>$i</a></li>";
-                                            }
+                                        foreach ($searchResult as $product) {
+                                            echo showProductList($product);
                                         }
-
-                                        // Add next button
-                                        if ($page < $totalPages) {
-                                            echo "<li class='page-item'><a class='page-link' href='?module=dashboard&view=product.view&page=" . ($page + 1) . "'>Next</a></li>";
-                                        }
-
-                                        echo "</ul>";
-                                        echo "</nav>";
-
-                                        foreach ($productsForCurrentPage as $product): ?>
-                                            <?= showProductList($product); ?>
-                                        <?php endforeach;
                                     }
-
-
                                 }
                             }
                         }

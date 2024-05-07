@@ -1,6 +1,7 @@
 <?php
 ob_start();
 
+use backend\bus\CategoriesBUS;
 use backend\bus\OrdersBUS;
 
 $title = 'Dashboard';
@@ -13,15 +14,17 @@ if (!isAllowToDashBoard()) {
     die('Access denied');
 }
 
-if (!checkPermission(5)) {
-    die('Access denied');
-}
 
 include (__DIR__ . '/../inc/head.php');
 
-$thongKeList = OrdersBUS::getInstance()->filterByDateRange();
+$thongKeListKH = OrdersBUS::getInstance()->filterByDateRangeKH();
+$thongKeListKHArray = array_map(function ($thongKe) {
+    return $thongKe->toArray();
+}, $thongKeListKH);
+$thongKeListKHJSON = json_encode($thongKeListKHArray);
 
-function displayThongKe($thongKe, $index)
+
+function displayThongKeKH($thongKe, $index)
 {
     echo '
         <tr class="align-middle">
@@ -36,9 +39,10 @@ function displayThongKe($thongKe, $index)
 
 ?>
 <html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <body>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- HEADER -->
     <?php include (__DIR__ . '/../inc/header.php'); ?>
 
@@ -52,15 +56,13 @@ function displayThongKe($thongKe, $index)
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
+                    <!-- <div class="btn-toolbar mb-2 mb-md-0">
 
-                        <!-- Function Button -->
                         <div class="btn-group me-2">
                             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
                         </div>
 
-                        <!-- Drop Down Menu -->
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
                                 id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
@@ -77,24 +79,26 @@ function displayThongKe($thongKe, $index)
                                 <li><a class="dropdown-item" href="#">Last Year</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="row justify-content-evenly">
                     <div class="col-6">
-                        <h3>Revenue</h3>
+                        <h1 style="text-align:center;">Bar Chart</h1>
+                        <canvas id="thongKeCotChart"></canvas>
                         <hr>
-                        <canvas id="Revenue_Income"></canvas>
+                        <!-- <h1 style="text-align:center;">Biểu đồ tròn</h1>
+                        <canvas id="thongKeTronChart"></canvas> -->
                     </div>
 
                     <div class="col-6">
-                        <h3>Total Login</h3>
+                        <h1 style="text-align:center;">Line Chart</h1>
+                        <canvas id="thongKeDuongChart"></canvas>
                         <hr>
-                        <canvas id="Total_Login"></canvas>
                     </div>
                 </div>
 
-                <h2>Top Customer</h2>
+                <h2>Statistic</h2>
                 <div class="container-lg d-flex justify-content-start m-0">
                     <td colspan="2">
                         <div class="purchased-sort-by-date-wrapper row">
@@ -115,37 +119,158 @@ function displayThongKe($thongKe, $index)
                         </div>
                     </td>
                 </div>
+                <br>
+                <select id="filterOption">
+                    <option value="khachHang">Customer</option>
+                    <option value="sanPham">Product</option>
+                </select>
+                <div><br></div>
+                <select style="display:none;" id="filterCategoryOption">
+                    <?php
+                    echo '<option value="-1">Default</option>';
+                    $cateList = CategoriesBUS::getInstance()->getAllModels();
+                    foreach ($cateList as $category) {
+                        $categoryName = $category->getName();
+                        $categoryId = $category->getId();
+                        echo "<option value='$categoryId'>$categoryName</option>";
+                    }
+                    ?>
+                </select>
 
                 <div class="table-responsive">
                     <table class="table table-striped table-sm">
                         <!-- HEADER TABLE -->
-                        <thead>
+                        <thead class="header_thong_ke">
                             <tr>
                                 <th scope="col"></th>
-                                <th scope="col">Customer Id</th>
+                                <th scope="col">User Id</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Total Price</th>
-                                <th scope="col">Order List</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
 
                         <!-- BODY DATABASE -->
                         <tbody class="showAllThongKe">
                             <?php
-                            foreach ($thongKeList as $index => $thongKe) {
-                                displayThongKe($thongKe, $index + 1);
+                            foreach ($thongKeListKH as $index => $thongKe) {
+                                displayThongKeKH($thongKe, $index + 1);
                             }
                             if (isPost()) {
                                 $filterAll = filter();
+                                echo '<pre>';
+                                print_r($filterAll);
+                                echo '</pre>';
                                 if (isset($filterAll['dateFrom']) && isset($filterAll['dateTo'])) {
-                                    $thongKeList = OrdersBUS::getInstance()->filterByDateRange($filterAll['dateFrom'], $filterAll['dateTo']);
-                                    $thongKeListArray = array_map(function ($thongKe) {
-                                        return $thongKe->toArray();
-                                    }, $thongKeList);
-                                    ob_end_clean();
-                                    header('Content-Type: application/json');
-                                    echo json_encode(['thongKeList' => $thongKeListArray]);
-                                    exit;
+                                    if (isset($filterAll['khachhang'])) {
+                                        //Add +1 day to dateTo:
+                                        $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                        $thongKeListKH = OrdersBUS::getInstance()->filterByDateRangeKH($filterAll['dateFrom'], $dateTo);
+                                        $thongKeListKHArray = array_map(function ($thongKe) {
+                                            return $thongKe->toArray();
+                                        }, $thongKeListKH);
+                                        ob_end_clean();
+                                        header('Content-Type: application/json');
+                                        echo json_encode(['thongKeListKH' => $thongKeListKHArray]);
+                                        exit;
+                                    }
+                                    if (isset($filterAll['sanpham'])) {
+                                        $category = $filterAll['category'];
+                                        if ($category == -1) {
+                                            //Add +1 day to dateTo:
+                                            $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSP($filterAll['dateFrom'], $dateTo);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        } else {
+                                            //Add +1 day to dateTo:
+                                            $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSPTheoLoai($filterAll['dateFrom'], $dateTo, $category);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        }
+                                    }
+                                } elseif (isset($filterAll['dateFrom'])) {
+                                    if (isset($filterAll['khachhang'])) {
+                                        $thongKeListKH = OrdersBUS::getInstance()->filterByDateRangeKH($filterAll['dateFrom']);
+                                        $thongKeListKHArray = array_map(function ($thongKe) {
+                                            return $thongKe->toArray();
+                                        }, $thongKeListKH);
+                                        ob_end_clean();
+                                        header('Content-Type: application/json');
+                                        echo json_encode(['thongKeListKH' => $thongKeListKHArray]);
+                                        exit;
+                                    }
+                                    if (isset($filterAll['sanpham'])) {
+                                        $category = $filterAll['category'];
+                                        if ($category == -1) {
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSP($filterAll['dateFrom']);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        } else {
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSPTheoLoai($filterAll['dateFrom'], $category);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        }
+                                    }
+                                } elseif (isset($filterAll['dateTo'])) {
+                                    if (isset($filterAll['khachhang'])) {
+                                        $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                        $thongKeListKH = OrdersBUS::getInstance()->filterByDateRangeKH($dateTo);
+                                        $thongKeListKHArray = array_map(function ($thongKe) {
+                                            return $thongKe->toArray();
+                                        }, $thongKeListKH);
+                                        ob_end_clean();
+                                        header('Content-Type: application/json');
+                                        echo json_encode(['thongKeListKH' => $thongKeListKHArray]);
+                                        exit;
+                                    }
+                                    if (isset($filterAll['sanpham'])) {
+                                        $category = $filterAll['category'];
+                                        if ($category == -1) {
+                                            //Add +1 day to dateTo:
+                                            $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSP($dateTo);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        } else {
+                                            //Add +1 day to dateTo:
+                                            $dateTo = date('Y-m-d', strtotime($filterAll['dateTo'] . ' +1 day'));
+                                            $thongKeListSP = OrdersBUS::getInstance()->filterByDateRangeSPTheoLoai($dateTo, $category);
+                                            $thongKeListSPArray = array_map(function ($thongKe) {
+                                                return $thongKe->toArray();
+                                            }, $thongKeListSP);
+                                            ob_end_clean();
+                                            header('Content-Type: application/json');
+                                            echo json_encode(['thongKeListSP' => $thongKeListSPArray]);
+                                            exit;
+                                        }
+                                    }
                                 }
                             }
                             ?>
@@ -164,12 +289,13 @@ function displayThongKe($thongKe, $index)
                     <!-- HEADER TABLE -->
                     <thead>
                         <tr>
-                            <th scope="col" class="col-2">Order Id</th>
-                            <th scope="col" class="col-2">Order Date</th>
+                            <th scope="col" class="col-1">ID Order</th>
+                            <th scope="col" class="col-1">User ID</th>
                             <th scope="col" class="col-2">Customer Name</th>
+                            <th scope="col" class="col-2">Order Date</th>
                             <th scope="col" class="col-1">Final Price</th>
                             <th scope="col" class="col-1 text-center">Status</th>
-                            <th scope="col" class="col-1 text-center">Action</th>
+                            <th scope="col" class="col-1 text-center">Info</th>
                         </tr>
                     </thead>
 
@@ -191,10 +317,10 @@ function displayThongKe($thongKe, $index)
                         ?>
                     </tbody>
                 </table>
+
             </div>
         </div>
     </div>
-
     <?php
     include (__DIR__ . '/../inc/app/app.php');
     include (__DIR__ . '/../inc/chart.php')
@@ -209,17 +335,22 @@ function displayThongKe($thongKe, $index)
         let filterByDateBtn = document.querySelector('.filter_by_date_btn');
         let modelDetail = document.querySelector('.model_detail');
         let contentWrapper = document.querySelector('.content-wrapper');
+        let headerThongKe = document.querySelector('.header_thong_ke');
+        let thongKeKHList = <?= $thongKeListKHJSON ?>;
+        let thongKeSPList = [];
+        let filterOption = document.querySelector('#filterOption');
+        let tableBody = document.querySelector('.showAllThongKe');
+        var dateFrom = document.getElementById('purchased-date-from').value;
+        var dateTo = document.getElementById('purchased-date-to').value;
+        var selectFilterByCategory = document.querySelector('#filterCategoryOption');
 
         // Function to add click event to see detail buttons
         function addSeeDetailButtonClickEvent() {
             let seeDetailButtons = document.querySelectorAll('.seeDetailBtn');
             seeDetailButtons.forEach(function (button) {
                 button.addEventListener('click', function () {
-                    // Get userId from button's id
                     let userId = button.getAttribute('id');
-                    // Call function to get order list by user id
                     getOrderListByUserId(userId);
-                    // Show detail modal
                     modelDetail.style.display = 'flex';
                 });
             });
@@ -230,29 +361,103 @@ function displayThongKe($thongKe, $index)
 
         // Click event for filter by date button
         filterByDateBtn.addEventListener('click', function () {
-            var dateFrom = document.getElementById('purchased-date-from').value;
-            var dateTo = document.getElementById('purchased-date-to').value;
+            if (filterOption.value == 'khachHang') {
+                filterKhachHang();
+            }
+            if (filterOption.value == 'sanPham') {
+                filterSanPham();
+            }
+        });
 
+        filterOption.addEventListener('change', function () {
+            var selectedValue = filterOption.value;
+            if (selectedValue === 'khachHang') {
+                selectFilterByCategory.style.display = 'none';
+                filterKhachHang();
+            } else if (selectedValue === 'sanPham') {
+                selectFilterByCategory.style.display = 'block';
+                filterSanPham();
+            }
+        });
+
+        selectFilterByCategory.addEventListener('change', function () {
+            filterSanPham();
+        })
+
+        function filterKhachHang() {
+            headerThongKe.innerHTML = `<tr>
+            <th scope="col"></th>
+            <th scope="col">User Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Total amount</th>
+            <th scope="col">Action</th>
+            </tr>`;
+            dateFrom = document.getElementById('purchased-date-from').value;
+            dateTo = document.getElementById('purchased-date-to').value;
             fetch('http://localhost/frontend/?module=dashboard&view=dashboard.view', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'dateFrom=' + dateFrom + '&dateTo=' + dateTo,
+                body: 'dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&khachhang=' + true
             })
                 .then(function (response) {
                     return response.json();
                 })
                 .then(function (data) {
-                    var tableBody = document.querySelector('.showAllThongKe');
-                    tableBody.innerHTML = htmlThongKeList(data.thongKeList);
-                    // Add click event to see detail buttons after re-rendering
+                    thongKeKHList = data.thongKeListKH;
+                    tableBody.innerHTML = htmlThongKeKHList(thongKeKHList);
                     addSeeDetailButtonClickEvent();
+                    var ctx = document.getElementById('thongKeCotChart').getContext('2d');
+                    Chart.getChart('thongKeCotChart').destroy();
+                    drawThongKeKHCotChart();
+                    var ctx = document.getElementById('thongKeDuongChart').getContext('2d');
+                    Chart.getChart('thongKeDuongChart').destroy();
+                    drawThongKeKHDuongChart();
+                    var ctx = document.getElementById('thongKeTronChart').getContext('2d');
+                    Chart.getChart('thongKeTronChart').destroy();
+                    drawThongKeKHTronChart();
                 });
-        });
+        }
+
+        function filterSanPham() {
+            var category = selectFilterByCategory.value;
+            headerThongKe.innerHTML = `<tr>
+            <th scope="col"></th>
+            <th scope="col">Product Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Total quantity</th>
+            <th scope="col">Total price</th>
+            </tr>`
+            dateFrom = document.getElementById('purchased-date-from').value;
+            dateTo = document.getElementById('purchased-date-to').value;
+            fetch('http://localhost/frontend/?module=dashboard&view=dashboard.view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&sanpham=' + true + '&category=' + category
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    thongKeSPList = data.thongKeListSP;
+                    tableBody.innerHTML = htmlThongKeSPList(thongKeSPList);
+                    var ctx = document.getElementById('thongKeCotChart').getContext('2d');
+                    Chart.getChart('thongKeCotChart').destroy();
+                    drawThongKeSPCotChart();
+                    var ctx = document.getElementById('thongKeDuongChart').getContext('2d');
+                    Chart.getChart('thongKeDuongChart').destroy();
+                    drawThongKeSPDuongChart();
+                    var ctx = document.getElementById('thongKeTronChart').getContext('2d');
+                    Chart.getChart('thongKeTronChart').destroy();
+                    drawThongKeSPTronChart();
+                });
+        }
 
         // Function to generate HTML for thong ke list
-        function htmlThongKeList(thongKeList) {
+        function htmlThongKeKHList(thongKeList) {
             let htmlInTable = "";
             thongKeList.forEach(function (thongKe, index) {
                 htmlInTable += `
@@ -261,7 +466,22 @@ function displayThongKe($thongKe, $index)
                 <th scope="col">${thongKe.userId}</th>
                 <th scope="col">${thongKe.customerName}</th>
                 <th scope="col">${thongKe.totalPurchaseAmount}</th>
-                <th scope="col"><button class="seeDetailBtn" id="${thongKe.userId}">Xem chi tiết</button></th>
+                <th scope="col"><button class="seeDetailBtn" id="${thongKe.userId}"><i class="fas fa-eye"></i></button></th>
+            </tr>`;
+            });
+            return htmlInTable;
+        }
+
+        function htmlThongKeSPList(thongKeList) {
+            let htmlInTable = "";
+            thongKeList.forEach(function (thongKe, index) {
+                htmlInTable += `
+            <tr class="align-middle">
+                <th scope="col">${index + 1}</th>
+                <th scope="col">${thongKe.productId}</th>
+                <th scope="col">${thongKe.productName}</th>
+                <th scope="col">${thongKe.totalQuantitySold}</th>
+                <th scope="col">${thongKe.totalAmount}</th>
             </tr>`;
             });
             return htmlInTable;
@@ -306,15 +526,12 @@ function displayThongKe($thongKe, $index)
                     htmlInTable += `
                         <tr class="align-middle">
                             <td>${order.id}</td>
-                            <td>${order.orderDate}</td>
+                            <td>${order.userId}</td>
                             <td>${order.customerName}</td>
+                            <td>${order.orderDate}</td>
                             <td>${order.totalAmount}</td>
                             <td class="text-center">${order.status}</td>
-                            <td class="text-center">
-                                <button class="orderDetailBtn" data-order-id="${order.id}">
-                                    <i class="fa fa-eye"></i>
-                                </button>
-                            </td>
+                            <td class="text-center"><button class="orderDetailBtn" data-order-id="${order.id}"><i class="fas fa-eye"></i></button></td>
                         </tr>`;
                 });
             }
@@ -330,5 +547,310 @@ function displayThongKe($thongKe, $index)
         contentWrapper.addEventListener('click', function (e) {
             e.stopPropagation();
         });
+
+
+
+        function drawThongKeKHCotChart() {
+            var ctx = document.getElementById('thongKeCotChart').getContext('2d');
+            var thongKeKHChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: thongKeKHList.map(item => item.customerName),
+                    datasets: [{
+                        label: 'Total Purchase Amount',
+                        data: thongKeKHList.map(item => item.totalPurchaseAmount),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawThongKeSPCotChart() {
+            var ctx = document.getElementById('thongKeCotChart').getContext('2d');
+            var thongKeSPChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: thongKeSPList.map(item => item.productName),
+                    datasets: [{
+                        label: 'Total Quantity Sold',
+                        data: thongKeSPList.map(item => item.totalQuantitySold),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'decimal'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hàm vẽ biểu đồ đường cho thống kê khách hàng
+        function drawThongKeKHDuongChart() {
+            var ctx = document.getElementById('thongKeDuongChart').getContext('2d');
+            var thongKeKHChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: thongKeKHList.map(item => item.customerName),
+                    datasets: [{
+                        label: 'Total Purchase Amount',
+                        data: thongKeKHList.map(item => item.totalPurchaseAmount),
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hàm vẽ biểu đồ đường cho thống kê sản phẩm
+        function drawThongKeSPDuongChart() {
+            var ctx = document.getElementById('thongKeDuongChart').getContext('2d');
+            var thongKeSPChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: thongKeSPList.map(item => item.productName),
+                    datasets: [{
+                        label: 'Total quantity sold',
+                        data: thongKeSPList.map(item => item.totalQuantitySold),
+                        fill: false,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'decimal'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawThongKeKHTronChart() {
+            var ctx = document.getElementById('thongKeTronChart').getContext('2d');
+            var thongKeKHChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: thongKeKHList.map(item => item.customerName),
+                    datasets: [{
+                        label: 'Total Purchase Amount',
+                        data: thongKeKHList.map(item => item.totalPurchaseAmount),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                }
+            });
+        }
+
+        function drawThongKeSPTronChart() {
+            var ctx = document.getElementById('thongKeTronChart').getContext('2d');
+            var thongKeSPChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: thongKeSPList.map(item => item.productName),
+                    datasets: [{
+                        label: 'Total Quantity Sold',
+                        data: thongKeSPList.map(item => item.totalQuantitySold),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', {
+                                            style: 'decimal'
+                                        }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                }
+            });
+        }
+        // Gọi hàm vẽ biểu đồ khách hàng
+        drawThongKeKHCotChart();
+        drawThongKeKHDuongChart();
+        drawThongKeKHTronChart();
     });
 </script>

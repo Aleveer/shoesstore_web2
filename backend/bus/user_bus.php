@@ -153,11 +153,17 @@ class UserBUS implements BUSInterface
             $errors['username']['valid'] = "Invalid username";
         }
 
-        if (!$validation->isValidPassword($userModel->getPassword())) {
-            $errors['password']['valid'] = "Invalid password";
+        if (strlen($userModel->getPassword()) < 6) {
+            $errors['password']['min-length'] = "Password must be at least 8 characters";
         }
 
-        if (strlen($userModel->getPassword()) < 8) {
+        $passwordValidationResult = $validation->isValidPassword($userModel->getPassword());
+
+        if ($passwordValidationResult !== true) {
+            $errors['password']['valid'] = $passwordValidationResult;
+        }
+
+        if (strlen($userModel->getPassword()) < 6) {
             $errors['password']['min-length'] = "Password must be at least 8 characters";
         }
 
